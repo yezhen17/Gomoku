@@ -1,7 +1,7 @@
 
 #ifndef _DEFINE_
 #define _DEFINE_
-//È«¾Ö±äÁ¿¶¨Òå
+//å…¨å±€å˜é‡å®šä¹‰
 
 #include <stdio.h>
 #include <string.h>
@@ -12,15 +12,15 @@
 #include <ctime>
 using namespace std;
 
-#define blank 0		//¿Õ°×µã
-#define black 1		//ºÚ·½
-#define white 2		//°×·½
+#define blank 0		//ç©ºç™½ç‚¹
+#define black 1		//é»‘æ–¹
+#define white 2		//ç™½æ–¹
 #define inf 1000000		
-#define inboard(a,b) (a>0 && a<=15 && b>0 && b<=15)		//ÓÃÓÚ¼ìÑéÕĞ·¨ÊÇ·ñÔÚÆåÅÌÉÏ
+#define inboard(a,b) (a>0 && a<=15 && b>0 && b<=15)		//ç”¨äºæ£€éªŒæ‹›æ³•æ˜¯å¦åœ¨æ£‹ç›˜ä¸Š
 
-#define GRID_NUM 16	//ÆåÅÌ¹æÄ£	
-extern int chessBoard[GRID_NUM][GRID_NUM]; //ÆåÅÌ
-bool gameover(struct point node, int player); //ÅĞ¶ÏÊÇ·ñÓÎÏ·½áÊø
+#define GRID_NUM 16	//æ£‹ç›˜è§„æ¨¡	
+extern int chessBoard[GRID_NUM][GRID_NUM]; //æ£‹ç›˜
+bool gameover(struct point node, int player); //åˆ¤æ–­æ˜¯å¦æ¸¸æˆç»“æŸ
 #endif
 
 

@@ -1,6 +1,6 @@
 #ifndef _CREATEMOVES_
 #define _CREATEMOVES_
-//×ß·¨Éú³ÉÆ÷
+//èµ°æ³•ç”Ÿæˆå™¨
 
 int createMoves(int player);
 

@@ -1,3 +1,3 @@
 #include "define.h"
 
-int chessBoard[GRID_NUM][GRID_NUM];//¶¨ÒåÆåÅÌ
+int chessBoard[GRID_NUM][GRID_NUM];//å®šä¹‰æ£‹ç›˜

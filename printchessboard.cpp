@@ -3,26 +3,26 @@
 void judge(int i, int j)
 {
 	if (i == 1 && j == 1)
-		printf("¨X ");
+		printf("â•” ");
 	else if (i == 1 && j == 15)
-		printf("¨[");
+		printf("â•—");
 	else if (i == 15 && j == 1)
-		printf("¨^ ");
+		printf("â•š ");
 	else if (i == 15 && j == 15)
-		printf("¨a");
+		printf("â•");
 	else if (i == 1 && j != 15 && j != 1)
-		printf("©Ó ");
+		printf("â”¯ ");
 	else if (i == 15 && j != 15 && j != 1)
-		printf("©Û ");
+		printf("â”· ");
 	else if (j == 1 && i != 15 && i != 1)
-		printf("©Ä ");
+		printf("â”  ");
 	else if (j == 15 && i != 15 && i != 1)
-		printf("©Ì");
+		printf("â”¨");
 	else
-		printf("©à ");
+		printf("â”¼ ");
 }
 
-void print() //ÆåÅÌ´òÓ¡
+void print() //æ£‹ç›˜æ‰“å°
 {
 	for (int i = 0; i < 16; i++)
 	{
@@ -42,10 +42,10 @@ void print() //ÆåÅÌ´òÓ¡
 				continue;
 			}
 
-			if (chessBoard[i][j] == 1) //´Ë´¦ÎªºÚ×Ó
-				printf("¡ğ");
-			else if (chessBoard[i][j] == 2) //´Ë´¦Îª°××Ó
-				printf("¡ñ");
+			if (chessBoard[i][j] == 1) //æ­¤å¤„ä¸ºé»‘å­
+				printf("â—‹");
+			else if (chessBoard[i][j] == 2) //æ­¤å¤„ä¸ºç™½å­
+				printf("â—");
 			else
 			{
 				judge(i, j);

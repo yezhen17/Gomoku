@@ -3,7 +3,7 @@
 #include "makemove.h"
 #include "evaluate.h"
 #include "printchessboard.h"
-int searchMove() //ËÑË÷º¯ÊıÖ÷Ìå
+int searchMove() //æœç´¢å‡½æ•°ä¸»ä½“
 {
 
 	return 0;

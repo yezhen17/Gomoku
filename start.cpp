@@ -4,10 +4,10 @@
 #include "makemove.h"
 int main()
 {
-	cout << "*************Îå×ÓÆåÈË»ú¶ÔÞÄAI*************" << endl;
-	cout << "ÊäÈë: newblack  µçÄÔÏÈÊÖ" << endl;
-	cout << "ÊäÈë: newwhite  µçÄÔºóÊÖ" << endl;
-	cout << "ÊäÈë: move x y  ±íÊ¾Âä×Óµã" << endl;
+	cout << "*************äº”å­æ£‹äººæœºå¯¹å¼ˆAI*************" << endl;
+	cout << "è¾“å…¥: newblack  ç”µè„‘å…ˆæ‰‹" << endl;
+	cout << "è¾“å…¥: newwhite  ç”µè„‘åŽæ‰‹" << endl;
+	cout << "è¾“å…¥: move x y  è¡¨ç¤ºè½å­ç‚¹" << endl;
     print();
 	
 }

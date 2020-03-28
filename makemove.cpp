@@ -2,12 +2,12 @@
 #include "printchessboard.h"
 bool makeMove()
 {
-	//Ö´ĞĞÂä×Ó²Ù×÷£¨chessboard[i][j]=1 & chessboard[i][j]=2£©
+	//æ‰§è¡Œè½å­æ“ä½œï¼ˆchessboard[i][j]=1 & chessboard[i][j]=2ï¼‰
 	return true;
 }
 
 bool unMakeMove()
 {
-	//³·ÏúÂä×Ó²Ù×÷£¨chessboard[i][j]=0£©
+	//æ’¤é”€è½å­æ“ä½œï¼ˆchessboard[i][j]=0ï¼‰
 	return true;
 }
