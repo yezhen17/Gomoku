@@ -1,5 +1,5 @@
 #include "define.h"
-bool gameover()//鍒ゆ柇鏄惁娓告垙缁撴潫
+bool gameover()//判断是否游戏结束
 {
 	return true;
 }

@@ -1,6 +1,6 @@
 #ifndef _PRINTCHESSBOARD_
 #define _PRINTCHESSBOARD_
 
-void print();//æ‰“å°æ£‹ç›˜
+void print();//´òÓ¡ÆåÅÌ
 
 #endif

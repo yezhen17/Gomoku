@@ -1,7 +1,7 @@
 #ifndef _SEARCHMOVE_
 #define _SEARCHMOVE_
-//æœç´¢æ ¸å¿ƒ
+//ËÑË÷ºËĞÄ
 
-int searchMove();//æœç´¢æ ¸å¿ƒ
+int searchMove();//ËÑË÷ºËĞÄ
 
 #endif

@@ -1,11 +1,11 @@
 #ifndef _MAKEMOVE_
 #define _MAKEMOVE_
-//èµ°æ³•æ‰§è¡Œå™¨
+//×ß·¨Ö´ÐÐÆ÷
 
 #include "define.h"
 
-bool makeMove();//æ‰§è¡Œèµ°æ³•
+bool makeMove();//Ö´ÐÐ×ß·¨
 
-void unMakeMove();//æ’¤é”€èµ°æ³•
+void unMakeMove();//³·Ïú×ß·¨
 
 #endif
