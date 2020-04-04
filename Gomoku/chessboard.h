@@ -9,6 +9,7 @@
 ***************/
 const int INF = 0x3f3f3f3f;	// 极大值
 const int GRID_NUM = 15;	// 棋盘规模
+const int EFFECTIVE_DIAGONAL_NUM = 29; // 对角线数量
 
 /***************
 * [枚举] 棋/角色
@@ -69,6 +70,11 @@ private:
 	// Role sente;										// 先行方
 	Chess chessboard[GRID_NUM + 1][GRID_NUM + 1];		// 棋盘变量
 	std::vector<Move> chessRecord;						// 棋局记录
+
+	char horizontals[GRID_NUM][GRID_NUM + 3]; // 水平行
+	char verticals[GRID_NUM][GRID_NUM + 3]; // 竖直列
+	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 左下-右上方向对角线
+	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 右下-左上方向对角线
 	/*
 	// 获取当前角色
 	inline Role getCurrentRole() {
@@ -84,7 +90,35 @@ private:
 	}
 	// 清空棋盘
 	inline void clearChessboard() {
-		memset(chessboard, 0, sizeof(chessboard));		
+		memset(chessboard, 0, sizeof(chessboard));	
+		
+		// 重置辅助数组
+		for (int i = 0; i < GRID_NUM; i++) {
+			for (int j = 1; j <= GRID_NUM; j++) {
+				horizontals[i][j] = '0';
+				verticals[i][j] = '0';
+			}
+			horizontals[i][0] = horizontals[i][GRID_NUM + 1] = '#';
+			verticals[i][0] = verticals[i][GRID_NUM + 1] = '#';
+			horizontals[i][GRID_NUM + 2] = verticals[i][GRID_NUM + 2] = '\0';
+		}
+		for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
+			int len = 15 - abs(14 - i);
+			for (int j = 1; j <= len; j++) {
+				up_diagonals[i][j] = '0';
+				down_diagonals[i][j] = '0';
+			}
+			up_diagonals[i][0] = up_diagonals[i][len + 1] = '#';
+			down_diagonals[i][0] = down_diagonals[i][len + 1] = '#';
+			up_diagonals[i][len + 2] = down_diagonals[i][len + 2] = '\0';
+		}
+	}
+
+	inline char chess2char(Chess x) {
+		if (x == Chess::BLACK)
+			return '1';
+		else
+			return '2';
 	}
 };
 
