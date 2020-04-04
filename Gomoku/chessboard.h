@@ -55,6 +55,7 @@ public:
 	Status unMakeMove();								// 棋局撤销走法
 	Status gameOver();									// 判断棋局胜负结果
 	void printChessboard();								// 打印棋盘
+	bool printChessRecord(int step);					// 打印棋局记录
 protected:
 	// 根据棋局记录获取当前步数
 	inline int getCurrentStep() {

@@ -71,24 +71,18 @@ Status Chessboard::gameOver() {
 * [函数] 打印棋盘
 ***************/
 void Chessboard::printChessboard() {
-	// TODO
-	for (int i = 0; i < 16; i++) {
-		if (i == 0) {
-			printf("  ");
-			for (int j = 1; j < 16; j++)
-				printf("%-2d", j);
-			printf("\n");
-			continue;
-		}
-		for (int j = 0; j < 16; j++) {
-			if (j == 0) {
-				printf("%2d", i);
-				continue;
-			}
-			if (chessboard[i][j] == Chess::BLACK)		//此处为黑子
-				printf("○");
-			else if (chessboard[i][j] == Chess::WHITE)	//此处为白子
-				printf("●");
+	// 打印横坐标
+	printf("   ");
+	for (int i = 1; i <= 15; i++)
+		printf("%2X", i);
+	printf("\n");
+	for (int i = 1; i <= 15; i++) {
+		printf(" %2X", i);	// 打印纵坐标
+		for (int j = 1; j <= 15; j++) {
+			if (chessboard[i][j] == Chess::BLACK)
+				printf("○");		// 打印黑子
+			else if (chessboard[i][j] == Chess::WHITE)
+				printf("●");		// 打印白子
 			else {
 				// 边界打印
 				if (i == 1 && j == 1)
@@ -113,4 +107,24 @@ void Chessboard::printChessboard() {
 		}
 		printf("\n");
 	}
+	return;
+}
+
+/***************
+* [函数] 打印棋盘记录
+* 参数  步数索引（负数则倒数）
+* 返回  true - 打印成功, false - 打印失败
+***************/
+bool Chessboard::printChessRecord(int step) {
+	if (step <= 0)
+		step += (chessRecord.size() + 1);
+	if (step <= 0 || step > chessRecord.size())
+		return false;
+	char label[20];
+	sprintf_s(label, "【第%d步】", step);
+	if (step & 1)
+		printf("%-12s ○ → (%X, %X)\n", label, chessRecord[step - 1].x, chessRecord[step - 1].y);
+	else
+		printf("%-12s ● → (%X, %X)\n", label, chessRecord[step - 1].x, chessRecord[step - 1].y);
+	return true;
 }
