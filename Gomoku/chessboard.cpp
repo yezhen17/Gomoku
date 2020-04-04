@@ -40,19 +40,22 @@ Status Chessboard::makeMove(const int x, const int y) {
 	// 执行走法
 	Chess cur = getCurrentChess();	// 更新棋盘
 	chessboard[x][y] = cur;
-	horizontals[y - 1][x] = chess2char(cur);
-	verticals[x - 1][y] = chess2char(cur);
+
+	// 更新辅助数组
+	char c = chess2char(cur);
+	horizontals[y - 1][x] = c;
+	verticals[x - 1][y] = c;
 	if (x + y <= GRID_NUM + 1) {
-		up_diagonals[x + y - 2][x] = chess2char(cur);
+		up_diagonals[x + y - 2][x] = c;
 	}
 	else {
-		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = chess2char(cur);
+		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = c;
 	}
 	if (x - y <= 0) {
-		down_diagonals[x - y + GRID_NUM - 1][x] = chess2char(cur);
+		down_diagonals[x - y + GRID_NUM - 1][x] = c;
 	}
 	else {
-		down_diagonals[x - y + GRID_NUM - 1][y] = chess2char(cur);
+		down_diagonals[x - y + GRID_NUM - 1][y] = c;
 	}
 	
 	chessRecord.push_back(Move(x, y));		// 更新记录
@@ -71,8 +74,9 @@ Status Chessboard::unMakeMove() {
 	// 撤销走法
 	Move move = chessRecord.back();
 	int x = move.x, y = move.y;
-	chessboard[x][y] = Chess::BLANK;	// 更新棋盘
+	chessboard[x][y] = Chess::BLANK;	 // 更新棋盘
 
+	// 更新辅助数组
 	horizontals[y - 1][x] = '0';
 	verticals[x - 1][y] = '0';
 	if (x + y <= GRID_NUM + 1) {
@@ -97,7 +101,7 @@ Status Chessboard::unMakeMove() {
 * 返回  G_BLACK | G_WHITE | G_DRAW | G_CONTINUE
 ***************/
 Status Chessboard::gameOver() {
-	// TODO
+	// 正则表达式判断是否出现五子连珠
 	std::regex black_win("11111");
 	std::regex white_win("22222");
 	for (int i = 0; i < GRID_NUM; i++) {
@@ -132,8 +136,9 @@ Status Chessboard::gameOver() {
 			return Status::G_WHITE;
 		}
 	}
+	
 	if (getCurrentStep() > GRID_NUM * GRID_NUM) {
-		return Status::G_DRAW;
+		return Status::G_DRAW; // 和局
 	}
 	return Status::G_CONTINUE;
 }

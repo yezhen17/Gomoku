@@ -70,10 +70,10 @@ private:
 	Chess chessboard[GRID_NUM + 1][GRID_NUM + 1];		// 棋盘变量
 	std::vector<Move> chessRecord;						// 棋局记录
 
-	char horizontals[GRID_NUM][GRID_NUM + 3];
-	char verticals[GRID_NUM][GRID_NUM + 3];
-	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];
-	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];
+	char horizontals[GRID_NUM][GRID_NUM + 3]; // 水平行
+	char verticals[GRID_NUM][GRID_NUM + 3]; // 竖直列
+	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 左下-右上方向对角线
+	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 右下-左上方向对角线
 	/*
 	// 获取当前角色
 	inline Role getCurrentRole() {
@@ -89,7 +89,9 @@ private:
 	}
 	// 清空棋盘
 	inline void clearChessboard() {
-		memset(chessboard, 0, sizeof(chessboard));		
+		memset(chessboard, 0, sizeof(chessboard));	
+		
+		// 重置辅助数组
 		for (int i = 0; i < GRID_NUM; i++) {
 			for (int j = 1; j <= GRID_NUM; j++) {
 				horizontals[i][j] = '0';
