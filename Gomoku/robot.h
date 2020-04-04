@@ -14,6 +14,10 @@ public:
 	std::vector<Move> createMoves(Chessboard &chessboard);	// 获取合法落子点
 	int evaluate(Chessboard& chessboard);					// 估值算法，返回估值
 	int searchMove(Chessboard& chessboard);					// 搜索核心
+
+	std::regex black_regex[100];
+	std::regex white_regex[100];
+	int cost[7];
 };
 
 #endif

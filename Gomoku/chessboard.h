@@ -3,6 +3,7 @@
 #define _CHESSBOARD_H_
 #include <string.h>
 #include <vector>
+#include <regex>
 
 /***************
 * [常量] 定义
@@ -56,6 +57,12 @@ public:
 	Status unMakeMove();								// 棋局撤销走法
 	Status gameOver();									// 判断棋局胜负结果
 	void printChessboard();								// 打印棋盘
+
+	char horizontals[GRID_NUM][GRID_NUM + 3]; // 水平行
+	char verticals[GRID_NUM][GRID_NUM + 3]; // 竖直列
+	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 左下-右上方向对角线
+	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 右下-左上方向对角线
+
 protected:
 	// 根据棋局记录获取当前步数
 	inline int getCurrentStep() {
@@ -70,10 +77,7 @@ private:
 	Chess chessboard[GRID_NUM + 1][GRID_NUM + 1];		// 棋盘变量
 	std::vector<Move> chessRecord;						// 棋局记录
 
-	char horizontals[GRID_NUM][GRID_NUM + 3]; // 水平行
-	char verticals[GRID_NUM][GRID_NUM + 3]; // 竖直列
-	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 左下-右上方向对角线
-	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3]; // 右下-左上方向对角线
+	
 	/*
 	// 获取当前角色
 	inline Role getCurrentRole() {
