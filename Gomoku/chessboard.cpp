@@ -105,34 +105,34 @@ Status Chessboard::gameOver() {
 	std::regex black_win("11111");
 	std::regex white_win("22222");
 	for (int i = 0; i < GRID_NUM; i++) {
-		if (std::regex_match(horizontals[i], black_win)) {
+		if (std::regex_search(horizontals[i], black_win)) {
 			return Status::G_BLACK;
 		}
-		if (std::regex_match(horizontals[i], white_win)) {
+		if (std::regex_search(horizontals[i], white_win)) {
 			return Status::G_WHITE;
 		}
 	}
 	for (int i = 0; i < GRID_NUM; i++) {
-		if (std::regex_match(verticals[i], black_win)) {
+		if (std::regex_search(verticals[i], black_win)) {
 			return Status::G_BLACK;
 		}
-		if (std::regex_match(verticals[i], white_win)) {
+		if (std::regex_search(verticals[i], white_win)) {
 			return Status::G_WHITE;
 		}
 	}
 	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (std::regex_match(up_diagonals[i], black_win)) {
+		if (std::regex_search(up_diagonals[i], black_win)) {
 			return Status::G_BLACK;
 		}
-		if (std::regex_match(up_diagonals[i], white_win)) {
+		if (std::regex_search(up_diagonals[i], white_win)) {
 			return Status::G_WHITE;
 		}
 	}
 	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (std::regex_match(down_diagonals[i], black_win)) {
+		if (std::regex_search(down_diagonals[i], black_win)) {
 			return Status::G_BLACK;
 		}
-		if (std::regex_match(down_diagonals[i], white_win)) {
+		if (std::regex_search(down_diagonals[i], white_win)) {
 			return Status::G_WHITE;
 		}
 	}
