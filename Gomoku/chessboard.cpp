@@ -1,5 +1,6 @@
 #include "chessboard.h"
 #include <string.h> 
+#include <regex>
 using namespace std;
 
 /***************
@@ -37,7 +38,23 @@ Status Chessboard::makeMove(const int x, const int y) {
 	if (chessboard[x][y] != Chess::BLANK)
 		return Status::F_NOBLANK;
 	// 执行走法
-	chessboard[x][y] = getCurrentChess();	// 更新棋盘
+	Chess cur = getCurrentChess();	// 更新棋盘
+	chessboard[x][y] = cur;
+	horizontals[y - 1][x] = chess2char(cur);
+	verticals[x - 1][y] = chess2char(cur);
+	if (x + y <= GRID_NUM + 1) {
+		up_diagonals[x + y - 2][x] = chess2char(cur);
+	}
+	else {
+		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = chess2char(cur);
+	}
+	if (x - y <= 0) {
+		down_diagonals[x - y + GRID_NUM - 1][x] = chess2char(cur);
+	}
+	else {
+		down_diagonals[x - y + GRID_NUM - 1][y] = chess2char(cur);
+	}
+	
 	chessRecord.push_back(Move(x, y));		// 更新记录
 	return Status::S_OK;
 }
@@ -53,7 +70,24 @@ Status Chessboard::unMakeMove() {
 		return Status::F_NOLAST;
 	// 撤销走法
 	Move move = chessRecord.back();
-	chessboard[move.x][move.y] = Chess::BLANK;	// 更新棋盘
+	int x = move.x, y = move.y;
+	chessboard[x][y] = Chess::BLANK;	// 更新棋盘
+
+	horizontals[y - 1][x] = '0';
+	verticals[x - 1][y] = '0';
+	if (x + y <= GRID_NUM + 1) {
+		up_diagonals[x + y - 2][x] = '0';
+	}
+	else {
+		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = '0';
+	}
+	if (x - y <= 0) {
+		down_diagonals[x - y + GRID_NUM - 1][x] = '0';
+	}
+	else {
+		down_diagonals[x - y + GRID_NUM - 1][y] = '0';
+	}
+
 	chessRecord.pop_back();						// 更新记录
 	return Status::S_OK;
 }
@@ -64,6 +98,43 @@ Status Chessboard::unMakeMove() {
 ***************/
 Status Chessboard::gameOver() {
 	// TODO
+	std::regex black_win("11111");
+	std::regex white_win("22222");
+	for (int i = 0; i < GRID_NUM; i++) {
+		if (std::regex_match(horizontals[i], black_win)) {
+			return Status::G_BLACK;
+		}
+		if (std::regex_match(horizontals[i], white_win)) {
+			return Status::G_WHITE;
+		}
+	}
+	for (int i = 0; i < GRID_NUM; i++) {
+		if (std::regex_match(verticals[i], black_win)) {
+			return Status::G_BLACK;
+		}
+		if (std::regex_match(verticals[i], white_win)) {
+			return Status::G_WHITE;
+		}
+	}
+	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
+		if (std::regex_match(up_diagonals[i], black_win)) {
+			return Status::G_BLACK;
+		}
+		if (std::regex_match(up_diagonals[i], white_win)) {
+			return Status::G_WHITE;
+		}
+	}
+	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
+		if (std::regex_match(down_diagonals[i], black_win)) {
+			return Status::G_BLACK;
+		}
+		if (std::regex_match(down_diagonals[i], white_win)) {
+			return Status::G_WHITE;
+		}
+	}
+	if (getCurrentStep() > GRID_NUM * GRID_NUM) {
+		return Status::G_DRAW;
+	}
 	return Status::G_CONTINUE;
 }
 
