@@ -28,12 +28,12 @@ class Player {
 public:
 	Player();						// 构造函数
 	~Player();						// 析构函数
-	void getUserInput(Chess chess);	// 获取用户输入
-	inline Operation getOperation() {
-		return operation;			// 获取操作
+	void getUserInput(Chess chess);	// [接口] 获取用户输入
+	inline Operation getUserOperation() {
+		return operation;			// [接口] 获取操作
 	}
-	inline Move getMove() {
-		return move;				// 获取走法
+	inline Move getUserMove() {
+		return move;				// [接口] 获取走法
 	}
 private:
 	Operation operation;			// 操作变量

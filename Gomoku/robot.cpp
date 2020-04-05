@@ -27,12 +27,27 @@ Robot::~Robot() {
 	return;
 }
 
-std::vector<Move> Robot::createMoves(Chessboard& chessboard) {
+/***************
+* [函数] 获取机器决策 --- 接口
+* 参数  Chessboard& chessboard: 棋盘, Chess chess: 棋色
+***************/
+Move Robot::getRobotDecision(Chessboard& chessboard, Chess chess) {
+	// TODO
+	return Move(1, 1);
+
+}
+
+/***************
+* [函数] 获取合法落子点
+***************/
+vector<Move> Robot::createMoves(Chessboard& chessboard) {
 	// TODO
 	return vector<Move>();
 }
 
-//估值算法，返回估值
+/***************
+* [函数] 估值算法
+***************/
 int Robot::evaluate(Chessboard& chessboard) {
 	int black_value = 0;
 	int white_value = 0;
@@ -78,7 +93,9 @@ int Robot::evaluate(Chessboard& chessboard) {
 //https://www.cnblogs.com/maxuewei2/p/4825520.html
 
 
-//搜索函数主体
+/***************
+* [函数] 搜索算法
+***************/
 int Robot::searchMove(Chessboard& chessboard)  {
 	return 0;
 }

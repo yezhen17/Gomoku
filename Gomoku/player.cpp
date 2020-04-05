@@ -19,7 +19,7 @@ Player::~Player() {
 }
 
 /***************
-* [函数] 获取用户输入
+* [函数] 获取用户输入 --- 接口
 ***************/
 void Player::getUserInput(Chess chess) {
 	if (chess == Chess::BLACK)

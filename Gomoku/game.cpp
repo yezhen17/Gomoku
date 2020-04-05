@@ -17,9 +17,9 @@ void Game::start() {
 		this->printChessboard();
 		// 测试 - 获取/输出用户输入
 		this->getUserInput(Chess::BLACK);
-		cout << int(this->getOperation()) << endl;
-		cout << this->getMove().x << endl;
-		cout << this->getMove().y << endl;
+		cout << int(this->getUserOperation()) << endl;
+		cout << this->getUserMove().x << endl;
+		cout << this->getUserMove().y << endl;
 	}
 	return;
 }
