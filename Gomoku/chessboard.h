@@ -1,6 +1,7 @@
 #pragma once
 #ifndef _CHESSBOARD_H_
 #define _CHESSBOARD_H_
+#include <iostream>
 #include <string.h>
 #include <vector>
 #include <regex>
@@ -71,6 +72,9 @@ protected:
 	// 根据棋局记录获取当前棋色
 	inline Chess getCurrentChess() {
 		return ((chessRecord.size() & 1) ? Chess::BLACK : Chess::WHITE);
+	}
+	inline Move getLastMove() {
+		return chessRecord.back();
 	}
 private:
 	// Role sente;										// 先行方

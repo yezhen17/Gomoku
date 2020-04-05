@@ -39,7 +39,7 @@ Status Chessboard::makeMove(const int x, const int y) {
 		return Status::F_NOBLANK;
 	// 执行走法
 	Chess cur = getCurrentChess();	// 更新棋盘
-	chessboard[x][y] = cur;
+	chessboard[y][x] = cur;
 
 	// 更新辅助数组
 	char c = chess2char(cur);
@@ -74,7 +74,7 @@ Status Chessboard::unMakeMove() {
 	// 撤销走法
 	Move move = chessRecord.back();
 	int x = move.x, y = move.y;
-	chessboard[x][y] = Chess::BLANK;	 // 更新棋盘
+	chessboard[y][x] = Chess::BLANK;	 // 更新棋盘
 
 	// 更新辅助数组
 	horizontals[y - 1][x] = '0';
@@ -104,37 +104,64 @@ Status Chessboard::gameOver() {
 	// 正则表达式判断是否出现五子连珠
 	std::regex black_win("11111");
 	std::regex white_win("22222");
-	for (int i = 0; i < GRID_NUM; i++) {
-		if (std::regex_search(horizontals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_search(horizontals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	Move last = getLastMove();
+	int x = last.x, y = last.y;
+	char hrz[10] = "";
+	char vtc[10] = "";
+	char upd[10] = "";
+	char dnd[10] = "";
+	int xi = x - 4 < 1 ? 1 - x : -4;
+	int xj = x + 4 < GRID_NUM ? 4 : GRID_NUM - x;
+	int i = 0;
+	for (int j = xi; j <= xj; j++) {
+		hrz[i++] = horizontals[y - 1][x + j];
+		cout << x + j << " " << y << endl;
 	}
-	for (int i = 0; i < GRID_NUM; i++) {
-		if (std::regex_search(verticals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_search(verticals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	int yi = y - 4 < 1 ? 1 - y : -4;
+	int yj = y + 4 < GRID_NUM ? 4 : GRID_NUM - y;
+	i = 0;
+	for (int j = yi; j <= yj; j++) {
+		vtc[i++] = verticals[x - 1][y + j];
+		cout << x << " " << y + j << endl;
 	}
-	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (std::regex_search(up_diagonals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_search(up_diagonals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	int ui = xi < -yj ? -yj : xi;
+	int uj = xj < -yi ? xj : -yi;
+	i = 0;
+	for (; ui <= uj; ui++) {
+		upd[i++] = chess2char(chessboard[y - ui][x + ui]);
+		cout <<x + ui << " " << y - ui << endl;
 	}
-	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (std::regex_search(down_diagonals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_search(down_diagonals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	int di = xi < yi ? yi : xi;
+	int dj = xj < yj ? xj : yj;
+	i = 0;
+	for (; di <= dj; di++) {
+		dnd[i++] = chess2char(chessboard[y + di][x + di]);
+		cout << x + di << " " << y + di << endl;
+	}
+	
+	if (std::regex_search(hrz, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(hrz, white_win)) {
+		return Status::G_WHITE;
+	}
+	if (std::regex_search(vtc, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(vtc, white_win)) {
+		return Status::G_WHITE;
+	}
+	if (std::regex_search(upd, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(upd, white_win)) {
+		return Status::G_WHITE;
+	}
+	if (std::regex_search(dnd, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(dnd, white_win)) {
+		return Status::G_WHITE;
 	}
 	
 	if (getCurrentStep() > GRID_NUM * GRID_NUM) {
