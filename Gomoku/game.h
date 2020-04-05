@@ -12,6 +12,11 @@ enum class Role {
 	PLAYER = 0,		// 玩家
 	ROBOT = 1,		// 机器
 };
+enum class Stage {
+	DEFAULT = 0,	// 默认
+	UNDERWAY = 1,	// 正在进行
+	GAMEOVER = 2,	// 游戏结束
+};
 
 /***************
 * [类] 游戏
@@ -19,11 +24,13 @@ enum class Role {
 ***************/
 class Game: public Chessboard, public Player, public Robot {
 public:
-	Game() { }				// 构造函数
-	~Game() { }				// 析构函数
+	Game();					// 构造函数
+	~Game();				// 析构函数
 	void start();			// 运行函数 --- 程序主循环
 	void describe();		// 描述函数 --- 输出帮助信息
 private:
+	Role sente;				// 先行方
+	Stage stage;			// 游戏阶段
 	// TODO
 
 };

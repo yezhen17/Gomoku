@@ -119,9 +119,12 @@ Status Chessboard::unMakeMove() {
 ***************/
 Status Chessboard::gameOver() {
 	// 正则表达式判断是否出现五子连珠
+	if (chessRecord.empty())
+		return Status::G_CONTINUE;
+	Move last = chessRecord.back();
 	std::regex black_win("11111");
 	std::regex white_win("22222");
-	Move last = getLastMove();
+	
 	int y = last.x, x = last.y;
 	char hrz[10] = "";
 	char vtc[10] = "";

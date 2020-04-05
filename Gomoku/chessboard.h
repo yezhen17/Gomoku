@@ -62,19 +62,16 @@ public:
 	void printChessboard();								// 打印棋盘
 	bool printChessRecord(int step);					// 打印棋局记录
 protected:
-	// 根据棋局记录获取当前步数
+	// 根据棋局记录获取当前下一步数
 	inline int getCurrentStep() {
 		return (chessRecord.size() + 1);
 	}
-	// 根据棋局记录获取当前棋色
+	// 根据棋局记录获取当前下一棋色
 	inline Chess getCurrentChess() {
-		return ((chessRecord.size() & 1) ? Chess::BLACK : Chess::WHITE);
-	}
-	inline Move getLastMove() {
-		return chessRecord.back();
+		return ((chessRecord.size() & 1) ? Chess::WHITE : Chess::BLACK);
 	}
 private:
-	// Role sente;										// 先行方
+
 	Chess chessboard[GRID_NUM + 1][GRID_NUM + 1];		// 棋盘变量
 	std::vector<Move> chessRecord;						// 棋局记录
 	char horizontals[GRID_NUM][GRID_NUM + 3];			// 水平行
