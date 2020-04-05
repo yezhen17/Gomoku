@@ -237,7 +237,7 @@ void Chessboard::printChessboard() {
 bool Chessboard::printChessRecord(int step) {
 	if (step <= 0)
 		step += (chessRecord.size() + 1);
-	if (step <= 0 || step > chessRecord.size())
+	if (step <= 0 || step > int(chessRecord.size()))
 		return false;
 	char label[20];
 	sprintf_s(label, "¡¾µÚ%d²½¡¿", step);

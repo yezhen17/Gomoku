@@ -2,20 +2,9 @@
 #include <regex>
 using namespace std;
 
-<<<<<<< HEAD
 /***************
 * [函数] 构造函数
 ***************/
-Robot::Robot() {
-	return;
-}
-
-/***************
-* [函数] 析构函数
-***************/
-Robot::~Robot() {
-	return;
-=======
 Robot::Robot() {
 	black_regex[0] = std::regex("11111");
 	black_regex[1] = std::regex("011110");
@@ -28,7 +17,14 @@ Robot::Robot() {
 	black_regex[6] = std::regex("[2#]11000|[2#]10100|[2#]10010|00011[2#]|00101[2#]|01001[2#]");
 	cost[0] = 1000000;
 	cost[1] = 50000;
->>>>>>> 4c2ba6a736d724fbe7dc636807b22dbab7187711
+	return;
+}
+
+/***************
+* [函数] 析构函数
+***************/
+Robot::~Robot() {
+	return;
 }
 
 std::vector<Move> Robot::createMoves(Chessboard& chessboard) {
