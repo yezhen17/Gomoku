@@ -1,6 +1,6 @@
 #include "chessboard.h"
 #include <string.h> 
-#include <regex>
+
 using namespace std;
 
 /***************
@@ -62,19 +62,19 @@ Status Chessboard::makeMove(const int x, const int y) {
 	chessboard[x][y] = cur;
 	// 更新辅助数组
 	char c = chess2char(cur);
-	horizontals[y - 1][x] = c;
-	verticals[x - 1][y] = c;
+	horizontals[x - 1][y] = c;
+	verticals[y - 1][x] = c;
 	if (x + y <= GRID_NUM + 1) {
-		up_diagonals[x + y - 2][x] = c;
+		up_diagonals[x + y - 2][y] = c;
 	}
 	else {
-		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = c;
+		up_diagonals[x + y - 2][GRID_NUM + 1 - x] = c;
 	}
-	if (x - y <= 0) {
-		down_diagonals[x - y + GRID_NUM - 1][x] = c;
+	if (y - x <= 0) {
+		down_diagonals[y - x + GRID_NUM - 1][y] = c;
 	}
 	else {
-		down_diagonals[x - y + GRID_NUM - 1][y] = c;
+		down_diagonals[y - x + GRID_NUM - 1][x] = c;
 	}
 	chessRecord.push_back(Move(x, y));		// 更新记录
 	return Status::S_OK;
@@ -94,19 +94,19 @@ Status Chessboard::unMakeMove() {
 	int x = move.x, y = move.y;
 	chessboard[x][y] = Chess::BLANK;	 // 更新棋盘
 	// 更新辅助数组
-	horizontals[y - 1][x] = '0';
-	verticals[x - 1][y] = '0';
+	horizontals[x - 1][y] = '0';
+	verticals[y - 1][x] = '0';
 	if (x + y <= GRID_NUM + 1) {
-		up_diagonals[x + y - 2][x] = '0';
+		up_diagonals[x + y - 2][y] = '0';
 	}
 	else {
-		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = '0';
+		up_diagonals[x + y - 2][GRID_NUM + 1 - x] = '0';
 	}
-	if (x - y <= 0) {
-		down_diagonals[x - y + GRID_NUM - 1][x] = '0';
+	if (y - x <= 0) {
+		down_diagonals[y - x + GRID_NUM - 1][y] = '0';
 	}
 	else {
-		down_diagonals[x - y + GRID_NUM - 1][y] = '0';
+		down_diagonals[y - x + GRID_NUM - 1][x] = '0';
 	}
 
 	chessRecord.pop_back();						// 更新记录
@@ -121,37 +121,64 @@ Status Chessboard::gameOver() {
 	// 正则表达式判断是否出现五子连珠
 	std::regex black_win("11111");
 	std::regex white_win("22222");
-	for (int i = 0; i < GRID_NUM; i++) {
-		if (std::regex_match(horizontals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_match(horizontals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	Move last = getLastMove();
+	int y = last.x, x = last.y;
+	char hrz[10] = "";
+	char vtc[10] = "";
+	char upd[10] = "";
+	char dnd[10] = "";
+	int xi = x - 4 < 1 ? 1 - x : -4;
+	int xj = x + 4 < GRID_NUM ? 4 : GRID_NUM - x;
+	int i = 0;
+	for (int j = xi; j <= xj; j++) {
+		hrz[i++] = horizontals[y - 1][x + j];
+		cout << x + j << " " << y << endl;
 	}
-	for (int i = 0; i < GRID_NUM; i++) {
-		if (std::regex_match(verticals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_match(verticals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	int yi = y - 4 < 1 ? 1 - y : -4;
+	int yj = y + 4 < GRID_NUM ? 4 : GRID_NUM - y;
+	i = 0;
+	for (int j = yi; j <= yj; j++) {
+		vtc[i++] = verticals[x - 1][y + j];
+		cout << x << " " << y + j << endl;
 	}
-	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (std::regex_match(up_diagonals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_match(up_diagonals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	int ui = xi < -yj ? -yj : xi;
+	int uj = xj < -yi ? xj : -yi;
+	i = 0;
+	for (; ui <= uj; ui++) {
+		upd[i++] = chess2char(chessboard[y - ui][x + ui]);
+		cout <<x + ui << " " << y - ui << endl;
 	}
-	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (std::regex_match(down_diagonals[i], black_win)) {
-			return Status::G_BLACK;
-		}
-		if (std::regex_match(down_diagonals[i], white_win)) {
-			return Status::G_WHITE;
-		}
+	int di = xi < yi ? yi : xi;
+	int dj = xj < yj ? xj : yj;
+	i = 0;
+	for (; di <= dj; di++) {
+		dnd[i++] = chess2char(chessboard[y + di][x + di]);
+		cout << x + di << " " << y + di << endl;
+	}
+	
+	if (std::regex_search(hrz, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(hrz, white_win)) {
+		return Status::G_WHITE;
+	}
+	if (std::regex_search(vtc, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(vtc, white_win)) {
+		return Status::G_WHITE;
+	}
+	if (std::regex_search(upd, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(upd, white_win)) {
+		return Status::G_WHITE;
+	}
+	if (std::regex_search(dnd, black_win)) {
+		return Status::G_BLACK;
+	}
+	if (std::regex_search(dnd, white_win)) {
+		return Status::G_WHITE;
 	}
 	if (getCurrentStep() > GRID_NUM * GRID_NUM) {
 		return Status::G_DRAW; // 和局
