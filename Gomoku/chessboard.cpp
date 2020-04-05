@@ -39,23 +39,23 @@ Status Chessboard::makeMove(const int x, const int y) {
 		return Status::F_NOBLANK;
 	// 执行走法
 	Chess cur = getCurrentChess();	// 更新棋盘
-	chessboard[y][x] = cur;
+	chessboard[x][y] = cur;
 
 	// 更新辅助数组
 	char c = chess2char(cur);
-	horizontals[y - 1][x] = c;
-	verticals[x - 1][y] = c;
+	horizontals[x - 1][y] = c;
+	verticals[y - 1][x] = c;
 	if (x + y <= GRID_NUM + 1) {
-		up_diagonals[x + y - 2][x] = c;
+		up_diagonals[x + y - 2][y] = c;
 	}
 	else {
-		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = c;
+		up_diagonals[x + y - 2][GRID_NUM + 1 - x] = c;
 	}
-	if (x - y <= 0) {
-		down_diagonals[x - y + GRID_NUM - 1][x] = c;
+	if (y - x <= 0) {
+		down_diagonals[y - x + GRID_NUM - 1][y] = c;
 	}
 	else {
-		down_diagonals[x - y + GRID_NUM - 1][y] = c;
+		down_diagonals[y - x + GRID_NUM - 1][x] = c;
 	}
 	
 	chessRecord.push_back(Move(x, y));		// 更新记录
@@ -74,22 +74,22 @@ Status Chessboard::unMakeMove() {
 	// 撤销走法
 	Move move = chessRecord.back();
 	int x = move.x, y = move.y;
-	chessboard[y][x] = Chess::BLANK;	 // 更新棋盘
+	chessboard[x][y] = Chess::BLANK;	 // 更新棋盘
 
 	// 更新辅助数组
-	horizontals[y - 1][x] = '0';
-	verticals[x - 1][y] = '0';
+	horizontals[x - 1][y] = '0';
+	verticals[y - 1][x] = '0';
 	if (x + y <= GRID_NUM + 1) {
-		up_diagonals[x + y - 2][x] = '0';
+		up_diagonals[x + y - 2][y] = '0';
 	}
 	else {
-		up_diagonals[x + y - 2][GRID_NUM + 1 - y] = '0';
+		up_diagonals[x + y - 2][GRID_NUM + 1 - x] = '0';
 	}
-	if (x - y <= 0) {
-		down_diagonals[x - y + GRID_NUM - 1][x] = '0';
+	if (y - x <= 0) {
+		down_diagonals[y - x + GRID_NUM - 1][y] = '0';
 	}
 	else {
-		down_diagonals[x - y + GRID_NUM - 1][y] = '0';
+		down_diagonals[y - x + GRID_NUM - 1][x] = '0';
 	}
 
 	chessRecord.pop_back();						// 更新记录
@@ -105,7 +105,7 @@ Status Chessboard::gameOver() {
 	std::regex black_win("11111");
 	std::regex white_win("22222");
 	Move last = getLastMove();
-	int x = last.x, y = last.y;
+	int y = last.x, x = last.y;
 	char hrz[10] = "";
 	char vtc[10] = "";
 	char upd[10] = "";
