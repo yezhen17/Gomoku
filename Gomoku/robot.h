@@ -18,7 +18,8 @@ private:
 	int searchMove(Chessboard& chessboard);					// ËÑË÷ºËÐÄ
 	std::regex black_regex[100];
 	std::regex white_regex[100];
-	int cost[7];
+	int cost_self[10];
+	int cost_opp[10];
 };
 
 #endif
