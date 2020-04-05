@@ -2,6 +2,19 @@
 
 using namespace std;
 
+/***************
+* [函数] 构造函数
+***************/
+Robot::Robot() {
+	return;
+}
+
+/***************
+* [函数] 析构函数
+***************/
+Robot::~Robot() {
+	return;
+}
 
 std::vector<Move> Robot::createMoves(Chessboard& chessboard) {
 	// TODO

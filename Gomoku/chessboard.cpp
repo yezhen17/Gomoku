@@ -24,6 +24,26 @@ Chessboard::~Chessboard() {
 void Chessboard::initMove() {
 	this->clearChessboard();	// 清空棋盘
 	chessRecord.clear();		// 清空记录
+	// 重置辅助数组
+	for (int i = 0; i < GRID_NUM; i++) {
+		for (int j = 1; j <= GRID_NUM; j++) {
+			horizontals[i][j] = '0';
+			verticals[i][j] = '0';
+		}
+		horizontals[i][0] = horizontals[i][GRID_NUM + 1] = '#';
+		verticals[i][0] = verticals[i][GRID_NUM + 1] = '#';
+		horizontals[i][GRID_NUM + 2] = verticals[i][GRID_NUM + 2] = '\0';
+	}
+	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
+		int len = 15 - abs(14 - i);
+		for (int j = 1; j <= len; j++) {
+			up_diagonals[i][j] = '0';
+			down_diagonals[i][j] = '0';
+		}
+		up_diagonals[i][0] = up_diagonals[i][len + 1] = '#';
+		down_diagonals[i][0] = down_diagonals[i][len + 1] = '#';
+		up_diagonals[i][len + 2] = down_diagonals[i][len + 2] = '\0';
+	}
 	return;
 }
 
@@ -40,7 +60,6 @@ Status Chessboard::makeMove(const int x, const int y) {
 	// 执行走法
 	Chess cur = getCurrentChess();	// 更新棋盘
 	chessboard[x][y] = cur;
-
 	// 更新辅助数组
 	char c = chess2char(cur);
 	horizontals[y - 1][x] = c;
@@ -57,7 +76,6 @@ Status Chessboard::makeMove(const int x, const int y) {
 	else {
 		down_diagonals[x - y + GRID_NUM - 1][y] = c;
 	}
-	
 	chessRecord.push_back(Move(x, y));		// 更新记录
 	return Status::S_OK;
 }
@@ -75,7 +93,6 @@ Status Chessboard::unMakeMove() {
 	Move move = chessRecord.back();
 	int x = move.x, y = move.y;
 	chessboard[x][y] = Chess::BLANK;	 // 更新棋盘
-
 	// 更新辅助数组
 	horizontals[y - 1][x] = '0';
 	verticals[x - 1][y] = '0';
@@ -136,7 +153,6 @@ Status Chessboard::gameOver() {
 			return Status::G_WHITE;
 		}
 	}
-	
 	if (getCurrentStep() > GRID_NUM * GRID_NUM) {
 		return Status::G_DRAW; // 和局
 	}
@@ -148,40 +164,40 @@ Status Chessboard::gameOver() {
 ***************/
 void Chessboard::printChessboard() {
 	// 打印横坐标
-	printf("   ");
+	printf_s("   ");
 	for (int i = 1; i <= 15; i++)
-		printf("%2X", i);
-	printf("\n");
+		printf_s("%2X", i);
+	printf_s("\n");
 	for (int i = 1; i <= 15; i++) {
-		printf(" %2X", i);	// 打印纵坐标
+		printf_s(" %2X", i);	// 打印纵坐标
 		for (int j = 1; j <= 15; j++) {
 			if (chessboard[i][j] == Chess::BLACK)
-				printf("○");		// 打印黑子
+				printf_s("○");		// 打印黑子
 			else if (chessboard[i][j] == Chess::WHITE)
-				printf("●");		// 打印白子
+				printf_s("●");		// 打印白子
 			else {
 				// 边界打印
 				if (i == 1 && j == 1)
-					printf("╔ ");
+					printf_s("╔ ");
 				else if (i == 1 && j == 15)
-					printf("╗");
+					printf_s("╗");
 				else if (i == 15 && j == 1)
-					printf("╚ ");
+					printf_s("╚ ");
 				else if (i == 15 && j == 15)
-					printf("╝");
+					printf_s("╝");
 				else if (i == 1 && j != 15 && j != 1)
-					printf("┯ ");
+					printf_s("┯ ");
 				else if (i == 15 && j != 15 && j != 1)
-					printf("┷ ");
+					printf_s("┷ ");
 				else if (j == 1 && i != 15 && i != 1)
-					printf("┠ ");
+					printf_s("┠ ");
 				else if (j == 15 && i != 15 && i != 1)
-					printf("┨");
+					printf_s("┨");
 				else
-					printf("┼ ");
+					printf_s("┼ ");
 			}
 		}
-		printf("\n");
+		printf_s("\n");
 	}
 	return;
 }

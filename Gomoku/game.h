@@ -13,7 +13,8 @@ class Game: public Chessboard, public Player, public Robot {
 public:
 	Game() { }				// 构造函数
 	~Game() { }				// 析构函数
-	void start();			// 运行函数 --- 入口点
+	void start();			// 运行函数 --- 程序主循环
+	void describe();		// 描述函数 --- 输出帮助信息
 };
 
 #endif
