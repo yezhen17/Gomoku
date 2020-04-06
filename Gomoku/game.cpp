@@ -29,9 +29,12 @@ void Game::start() {
 	Move move = Move(0, 0);
 	while (true) {
 		// *** 打印游戏信息 ***
-		system("cls");		// 清空屏幕
-		describe();			// 打印帮助信息
-		printChessboard();	// 打印棋盘
+		system("cls");			// 清空屏幕			
+		describe();				// 打印帮助信息
+		printChessboard();		// 打印棋盘
+		printf_s("\n");
+		printChessRecord(-2);	// 打印棋局记录
+		printChessRecord(-1);	// 打印棋局记录
 		// *** 用户进行决策 ***
 		chess = getCurrentChess();
 		while (true) {
@@ -88,6 +91,7 @@ void Game::start() {
 				continue;
 			}
 			if (operation == Operation::EXIT) {
+				printf_s("[√] 已退出游戏。\n");
 				exit(0);							// 退出程序
 			}
 		}
@@ -99,9 +103,11 @@ void Game::start() {
 			continue;
 		if ((chess == Chess::WHITE) && (sente == Role::ROBOT))
 			continue;
-		move = getRobotDecision(*this, chess);	// 获取机器决策
-		if (makeMove(move.x, move.y) != Status::S_OK)	// 行棋
+		move = getRobotDecision(*this);						// 获取机器决策
+		if (makeMove(move.x, move.y) != Status::S_OK) {		// 行棋
+			printf_s("[×] AI故障，程序已终止。\n");
 			exit(1);
+		}	
 	}
 	return;
 }

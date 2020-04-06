@@ -58,36 +58,28 @@ Status Chessboard::makeMove(const int x, const int y) {
 	if (chessboard[x][y] != Chess::BLANK)
 		return Status::F_NOBLANK;
 	// 执行走法
-	Chess cur = getCurrentChess();	// 更新棋盘
-	chessboard[x][y] = cur;
+	Chess cur = getCurrentChess();
+	chessboard[x][y] = cur;					// 更新棋盘
+	chessRecord.push_back(Move(x, y));		// 更新记录
 	// 更新辅助数组
 	char c = chess2char(cur);
 	horizontals[x - 1][y] = c;
 	verticals[y - 1][x] = c;
-	if (x + y <= GRID_NUM + 1) {
+	if (x + y <= GRID_NUM + 1)
 		up_diagonals[x + y - 2][y] = c;
-	}
-	else {
+	else
 		up_diagonals[x + y - 2][GRID_NUM + 1 - x] = c;
-	}
-	if (y - x <= 0) {
+	if (y - x <= 0)
 		down_diagonals[y - x + GRID_NUM - 1][y] = c;
-	}
-	else {
+	else
 		down_diagonals[y - x + GRID_NUM - 1][x] = c;
-	}
-	for (int i = -2; i <= 2; i++) {
-		for (int j = -2; j <= 2; j++) {
-			if (x + i < 1 || x + i > GRID_NUM || y + j < 1 || y + j > GRID_NUM)
-				continue;
-			possibleMoves[x + i][y + j]++;
-		}
-	}
+	for (int i = -2; i <= 2; i++)
+		for (int j = -2; j <= 2; j++)
+			if (inChessboard(x + i, y + j))
+				possibleMoves[x + i][y + j]++;
 	possibleMoves[x][y] += 25;
-	chessRecord.push_back(Move(x, y));		// 更新记录
 	return Status::S_OK;
 }
-
 
 /***************
 * [函数] 棋局撤销走法
@@ -100,26 +92,19 @@ Status Chessboard::unMakeMove() {
 	// 撤销走法
 	Move move = chessRecord.back();
 	int x = move.x, y = move.y;
-	chessboard[x][y] = Chess::BLANK;	 // 更新棋盘
+	chessboard[x][y] = Chess::BLANK;	// 更新棋盘
+	chessRecord.pop_back();				// 更新记录
 	// 更新辅助数组
 	horizontals[x - 1][y] = '0';
 	verticals[y - 1][x] = '0';
-	if (x + y <= GRID_NUM + 1) {
+	if (x + y <= GRID_NUM + 1)
 		up_diagonals[x + y - 2][y] = '0';
-	}
-	else {
+	else
 		up_diagonals[x + y - 2][GRID_NUM + 1 - x] = '0';
-	}
-	if (y - x <= 0) {
+	if (y - x <= 0)
 		down_diagonals[y - x + GRID_NUM - 1][y] = '0';
-	}
-	else {
+	else
 		down_diagonals[y - x + GRID_NUM - 1][x] = '0';
-	}
-
-	// 更新possibleMoves矩阵
-	// 先更新当前点
-	possibleMoves[x][y] -= 25;
 	/*
 	bool isPossible = false;
 	for (int i = -2; i <= 2; i++) {
@@ -129,7 +114,7 @@ Status Chessboard::unMakeMove() {
 			if (possibleMoves[x + i][y + j] == Chess::BLACK) {
 				isPossible = true;
 			}
-		}
+		}	
 	}
 	if (isPossible) {
 		possibleMoves[x][y] = Chess::POSSIBLE;
@@ -137,11 +122,11 @@ Status Chessboard::unMakeMove() {
 	else {
 		possibleMoves[x][y] = Chess::BLANK;
 	}*/
-	
-	for (int i = -2; i <= 2; i++) {
-		for (int j = -2; j <= 2; j++) {
-			if (x + i < 1 || x + i > GRID_NUM || y + j < 1 || y + j > GRID_NUM)
-				continue;
+	possibleMoves[x][y] -= 25;
+	for (int i = -2; i <= 2; i++)
+		for (int j = -2; j <= 2; j++)
+			if (inChessboard(x + i, y + j))
+				possibleMoves[x + i][y + j]--;
 			/*
 			if (possibleMoves[x + i][y + j] == Chess::POSSIBLE) {
 				bool isPossible = false;
@@ -157,11 +142,6 @@ Status Chessboard::unMakeMove() {
 				if (!isPossible)
 				    possibleMoves[x + i][y + j] = Chess::BLANK;
 			}	*/
-			possibleMoves[x + i][y + j]--;
-		}
-	}
-	
-	chessRecord.pop_back();						// 更新记录
 	return Status::S_OK;
 }
 

@@ -9,7 +9,6 @@
 /***************
 * [常量] 定义
 ***************/
-const int INF = 0x3f3f3f3f;	// 极大值
 const int GRID_NUM = 15;	// 棋盘规模
 const int EFFECTIVE_DIAGONAL_NUM = 29; // 对角线数量
 
@@ -19,8 +18,8 @@ const int EFFECTIVE_DIAGONAL_NUM = 29; // 对角线数量
 enum class Chess {
 	BLANK = 0,		// 空白
 	BLACK = 1,		// 黑子
-	WHITE = 2, 	// 白子
-	POSSIBLE = 3 // 候选落子区域
+	WHITE = 2, 		// 白子
+	POSSIBLE = 3	// 候选落子区域
 };
 enum class Status {
 	S_OK = 0,		// 执行成功
@@ -62,7 +61,6 @@ public:
 	Status gameOver();									// 判断棋局胜负结果
 	void printChessboard();								// 打印棋盘
 	bool printChessRecord(int step);					// 打印棋局记录
-	
 protected:
 	// 根据棋局记录获取当前下一步数
 	inline int getCurrentStep() {
@@ -73,26 +71,16 @@ protected:
 		return ((chessRecord.size() & 1) ? Chess::WHITE : Chess::BLACK);
 	}
 private:
-
 	Chess chessboard[GRID_NUM + 1][GRID_NUM + 1];		// 棋盘变量
-	int possibleMoves[GRID_NUM + 1][GRID_NUM + 1]; // 记录候选落子位置
 	std::vector<Move> chessRecord;						// 棋局记录
-	char horizontals[GRID_NUM][GRID_NUM + 3];			// 水平行
-	char verticals[GRID_NUM][GRID_NUM + 3];				// 竖直列
-	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 左下-右上方向对角线
-	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 右下-左上方向对角线
-	/*
-	// 获取当前角色
-	inline Role getCurrentRole() {
-		if (chessRecord.size() & 1)
-			return (sente == Role::PLAYER ? Role::PLAYER : Role::ROBOT);
-		else
-			return (sente == Role::PLAYER ? Role::ROBOT : Role::PLAYER);
-	}
-	*/
+	int possibleMoves[GRID_NUM + 1][GRID_NUM + 1];		// 辅助数组 候选落子位置
+	char horizontals[GRID_NUM][GRID_NUM + 3];			// 辅助数组 水平行棋子
+	char verticals[GRID_NUM][GRID_NUM + 3];				// 辅助数组 竖直列棋子
+	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 左下-右上方向对角线棋子
+	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 右下-左上方向对角线棋子
 	// 检验招法是否在棋盘上
 	inline bool inChessboard(const int x, const int y) {
-		return (x > 0 && x <= GRID_NUM && y > 0 && y <= GRID_NUM);	
+		return (x >= 1 && x <= GRID_NUM && y >= 1 && y <= GRID_NUM);	
 	}
 	// 清空棋盘
 	inline void clearChessboard() {
