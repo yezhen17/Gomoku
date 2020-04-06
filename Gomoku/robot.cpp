@@ -59,7 +59,14 @@ Move Robot::getRobotDecision(Chessboard& chessboard, Chess chess) {
 ***************/
 vector<Move> Robot::createMoves(Chessboard& chessboard) {
 	// TODO
-	return vector<Move>();
+	vector<Move> moves;
+	for (int i = 1; i <= GRID_NUM; i++) {
+		for (int j = 1; j <= GRID_NUM; j++) {
+			if (chessboard.possibleMoves[i][j] > 0 && chessboard.possibleMoves[i][j] < 25)
+				moves.push_back(Move(i, j));
+		}
+	}
+	return moves;
 }
 
 /***************
@@ -72,7 +79,7 @@ int Robot::evaluate(Chessboard& chessboard) {
 	int cost_white[10];
 
 	// 根据此时的下棋方赋值代价数组
-	if (chessboard.getCurrentChess == Chess::BLACK) {
+	if (chessboard.getCurrentChess() == Chess::BLACK) {
 		memcpy(cost_black, cost_self, 10 * sizeof(int));
 		memcpy(cost_white, cost_opp, 10 * sizeof(int));
 	}
@@ -134,7 +141,7 @@ int Robot::evaluate(Chessboard& chessboard) {
 			black_value += cm.size() * cost_self[i];
 		}
 	}*/
-	if (chessboard.getCurrentChess == Chess::BLACK)
+	if (chessboard.getCurrentChess() == Chess::BLACK)
 	    return (black_value - white_value);
 	else
 	    return (white_value - black_value);
@@ -145,6 +152,9 @@ int Robot::evaluate(Chessboard& chessboard) {
 //裴博文. 五子棋人工智能权重估值算法[J]. 电脑编程技巧与维护, 2008(6):69-75.
 //https://www.cnblogs.com/maxuewei2/p/4825520.html
 
+int Robot::evaluate(Chessboard& chessboard, Move& p) {
+	return 0;
+}
 
 /***************
 * [函数] 搜索算法

@@ -76,6 +76,14 @@ Status Chessboard::makeMove(const int x, const int y) {
 	else {
 		down_diagonals[y - x + GRID_NUM - 1][x] = c;
 	}
+	for (int i = -2; i <= 2; i++) {
+		for (int j = -2; j <= 2; j++) {
+			if (x + i < 1 || x + i > GRID_NUM || y + j < 1 || y + j > GRID_NUM)
+				continue;
+			possibleMoves[x + i][y + j]++;
+		}
+	}
+	possibleMoves[x][y] += 25;
 	chessRecord.push_back(Move(x, y));		// 更新记录
 	return Status::S_OK;
 }
@@ -109,6 +117,50 @@ Status Chessboard::unMakeMove() {
 		down_diagonals[y - x + GRID_NUM - 1][x] = '0';
 	}
 
+	// 更新possibleMoves矩阵
+	// 先更新当前点
+	possibleMoves[x][y] -= 25;
+	/*
+	bool isPossible = false;
+	for (int i = -2; i <= 2; i++) {
+		for (int j = -2; j <= 2; j++) {
+			if (x + i < 1 || x + i > GRID_NUM || y + j < 1 || y + j > GRID_NUM)
+				continue;
+			if (possibleMoves[x + i][y + j] == Chess::BLACK) {
+				isPossible = true;
+			}
+		}
+	}
+	if (isPossible) {
+		possibleMoves[x][y] = Chess::POSSIBLE;
+	}
+	else {
+		possibleMoves[x][y] = Chess::BLANK;
+	}*/
+	
+	for (int i = -2; i <= 2; i++) {
+		for (int j = -2; j <= 2; j++) {
+			if (x + i < 1 || x + i > GRID_NUM || y + j < 1 || y + j > GRID_NUM)
+				continue;
+			/*
+			if (possibleMoves[x + i][y + j] == Chess::POSSIBLE) {
+				bool isPossible = false;
+				int s = x + i, t = y + j;
+				for (int m = -2; m <= 2; m++) {
+					for (int n = -2; n <= 2; n++) {
+						if (s + m < 1 || s + m > GRID_NUM || t + n < 1 || t + n > GRID_NUM)
+							continue;
+						if (possibleMoves[s + m][t + n] == Chess::BLACK)
+							isPossible = true;
+					}
+				}
+				if (!isPossible)
+				    possibleMoves[x + i][y + j] = Chess::BLANK;
+			}	*/
+			possibleMoves[x + i][y + j]--;
+		}
+	}
+	
 	chessRecord.pop_back();						// 更新记录
 	return Status::S_OK;
 }

@@ -19,7 +19,8 @@ const int EFFECTIVE_DIAGONAL_NUM = 29; // 对角线数量
 enum class Chess {
 	BLANK = 0,		// 空白
 	BLACK = 1,		// 黑子
-	WHITE = 2		// 白子
+	WHITE = 2, 	// 白子
+	POSSIBLE = 3 // 候选落子区域
 };
 enum class Status {
 	S_OK = 0,		// 执行成功
@@ -61,6 +62,7 @@ public:
 	Status gameOver();									// 判断棋局胜负结果
 	void printChessboard();								// 打印棋盘
 	bool printChessRecord(int step);					// 打印棋局记录
+	
 protected:
 	// 根据棋局记录获取当前下一步数
 	inline int getCurrentStep() {
@@ -73,6 +75,7 @@ protected:
 private:
 
 	Chess chessboard[GRID_NUM + 1][GRID_NUM + 1];		// 棋盘变量
+	int possibleMoves[GRID_NUM + 1][GRID_NUM + 1]; // 记录候选落子位置
 	std::vector<Move> chessRecord;						// 棋局记录
 	char horizontals[GRID_NUM][GRID_NUM + 3];			// 水平行
 	char verticals[GRID_NUM][GRID_NUM + 3];				// 竖直列
@@ -94,6 +97,7 @@ private:
 	// 清空棋盘
 	inline void clearChessboard() {
 		memset(chessboard, 0, sizeof(chessboard));
+		memset(possibleMoves, 0, sizeof(possibleMoves));
 	}
 	// 棋子转字符
 	inline char chess2char(Chess x) {
