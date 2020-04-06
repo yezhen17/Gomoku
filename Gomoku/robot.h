@@ -8,7 +8,7 @@
 ***************/
 const int MAX_VALUE = 0x3f3f3f3f;		// 极大值
 const int MIN_VALUE = -0x3f3f3f3f;		// 极小值
-const int MAX_DEPTH = 3;				// 最大搜索深度
+const int MAX_DEPTH = 2;				// 最大搜索深度
 struct pattern {
 	char P[7];
 	int m;

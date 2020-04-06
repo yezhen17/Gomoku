@@ -73,11 +73,10 @@ Status Chessboard::makeMove(const int x, const int y) {
 		down_diagonals[y - x + GRID_NUM - 1][y] = c;
 	else
 		down_diagonals[y - x + GRID_NUM - 1][x] = c;
-	for (int i = -2; i <= 2; i++)
-		for (int j = -2; j <= 2; j++)
-			if (inChessboard(x + i, y + j))
-				possibleMoves[x + i][y + j]++;
-	possibleMoves[x][y] += 25;
+	for (int i = 0; i < fnum; i++)
+			if (inChessboard(x + fx[i], y + fy[i]))
+				possibleMoves[x + fx[i]][y + fy[i]]++;
+	possibleMoves[x][y] += fnum;
 	return Status::S_OK;
 }
 
@@ -122,11 +121,10 @@ Status Chessboard::unMakeMove() {
 	else {
 		possibleMoves[x][y] = Chess::BLANK;
 	}*/
-	possibleMoves[x][y] -= 25;
-	for (int i = -2; i <= 2; i++)
-		for (int j = -2; j <= 2; j++)
-			if (inChessboard(x + i, y + j))
-				possibleMoves[x + i][y + j]--;
+	possibleMoves[x][y] -= fnum;
+	for (int i = 0; i < fnum; i++)
+			if (inChessboard(x + fx[i], y + fy[i]))
+				possibleMoves[x + fx[i]][y + fy[i]]--;
 			/*
 			if (possibleMoves[x + i][y + j] == Chess::POSSIBLE) {
 				bool isPossible = false;

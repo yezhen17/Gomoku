@@ -78,6 +78,11 @@ private:
 	char verticals[GRID_NUM][GRID_NUM + 3];				// 辅助数组 竖直列棋子
 	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 左下-右上方向对角线棋子
 	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 右下-左上方向对角线棋子
+	
+	int fx[16] = {-1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, 0, 0, 2, 2, 2};
+	int fy[16] = {-1, 0, 1, -1, 1, -1, 0, 1, -2, 0, 2, -2, 2, -2, 0, 2};
+	int fnum = 16;
+
 	// 检验招法是否在棋盘上
 	inline bool inChessboard(const int x, const int y) {
 		return (x >= 1 && x <= GRID_NUM && y >= 1 && y <= GRID_NUM);	
