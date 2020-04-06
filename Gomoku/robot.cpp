@@ -13,6 +13,13 @@ Robot::Robot() {
 	black_regex[3] = std::regex("001110|011100|011010|010110");
 	black_regex[4] = std::regex("01110|1(110|101|011)0|0(101|011|110)1");
 	black_regex[5] = std::regex("001100|01010|010010");
+	white_regex[0] = std::regex("22222");
+	white_regex[1] = std::regex("022220");
+	white_regex[2] = std::regex("22220|02222|22022|22202|20222");
+
+	white_regex[3] = std::regex("002220|022200|022020|020220");
+	white_regex[4] = std::regex("02220|2(220|202|022)0|0(202|022|220)2");
+	white_regex[5] = std::regex("002200|02020|020020");
 	// black_regex[6] = std::regex("[2#]11000|[2#]10100|[2#]10010|00011[2#]|00101[2#]|01001[2#]");
 
 	cost_self[0] = 300000; // 五
@@ -52,8 +59,9 @@ Move Robot::getRobotDecision(Chessboard& chessboard) {
 	// 首步 - 天元
 	if (chessboard.getCurrentStep() == 1)
 		return Move((GRID_NUM + 1) >> 1, (GRID_NUM + 1) >> 1);
-	return Move(1, 1);
-
+	// 进行搜索
+	chess = chessboard.getCurrentChess();	// 记录所执棋色
+	return searchMove(chessboard);
 }
 
 /***************
@@ -70,17 +78,15 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 
 /***************
 * [函数] 估值算法
+* 根据类变量 chess, 确定当前棋色
 ***************/
-int Robot::evaluate(Chessboard& chessboard, Chess chess) {
-	// TODO 对于指定方的估值
-
+int Robot::evaluate(Chessboard& chessboard) {
 	int black_value = 0;
 	int white_value = 0;
 	int cost_black[10];
 	int cost_white[10];
-
 	// 根据此时的下棋方赋值代价数组
-	if (chessboard.getCurrentChess() == Chess::BLACK) {
+	if (chess == Chess::BLACK) {
 		memcpy(cost_black, cost_self, 10 * sizeof(int));
 		memcpy(cost_white, cost_opp, 10 * sizeof(int));
 	}
@@ -94,27 +100,27 @@ int Robot::evaluate(Chessboard& chessboard, Chess chess) {
 			int blacksum = 0, whitesum = 0;
 			std::cmatch cm;
 			if (i < GRID_NUM) {
-				std::regex_search(chessboard.horizontals[i], cm, black_regex[i]);
+				std::regex_search(chessboard.horizontals[i], cm, black_regex[j]);
 				blacksum += cm.size();
-				std::regex_search(chessboard.verticals[i], cm, black_regex[i]);
+				std::regex_search(chessboard.verticals[i], cm, black_regex[j]);
 				blacksum += cm.size();
-				std::regex_search(chessboard.horizontals[i], cm, white_regex[i]);
+				std::regex_search(chessboard.horizontals[i], cm, white_regex[j]);
 				whitesum += cm.size();
-				std::regex_search(chessboard.verticals[i], cm, white_regex[i]);
+				std::regex_search(chessboard.verticals[i], cm, white_regex[j]);
 				whitesum += cm.size();
 			}
-			
-			std::regex_search(chessboard.up_diagonals[i], cm, black_regex[i]);
+
+			std::regex_search(chessboard.up_diagonals[i], cm, black_regex[j]);
 			blacksum += cm.size();
-			std::regex_search(chessboard.down_diagonals[i], cm, black_regex[i]);
+			std::regex_search(chessboard.down_diagonals[i], cm, black_regex[j]);
 			blacksum += cm.size();
-			std::regex_search(chessboard.up_diagonals[i], cm, white_regex[i]);
+			std::regex_search(chessboard.up_diagonals[i], cm, white_regex[j]);
 			whitesum += cm.size();
-			std::regex_search(chessboard.down_diagonals[i], cm, white_regex[i]);
+			std::regex_search(chessboard.down_diagonals[i], cm, white_regex[j]);
 			whitesum += cm.size();
 
-			black_value += cm.size() * cost_black[i];
-			white_value += cm.size() * cost_white[i];
+			black_value += blacksum * cost_black[j];
+			white_value += whitesum * cost_white[j];
 		}
 	}
 	/*
@@ -142,10 +148,10 @@ int Robot::evaluate(Chessboard& chessboard, Chess chess) {
 			black_value += cm.size() * cost_self[i];
 		}
 	}*/
-	if (chessboard.getCurrentChess() == Chess::BLACK)
-	    return (black_value - white_value);
+	if (chess == Chess::BLACK)
+		return (black_value - white_value);
 	else
-	    return (white_value - black_value);
+		return (white_value - black_value);
 }
 //由于五子棋搜索分支庞大，通常无法直接搜索到胜负终局，当搜索到一定深度时需要根据局面返回搜索结果。
 //参考资料：

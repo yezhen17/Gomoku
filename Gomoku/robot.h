@@ -23,14 +23,16 @@ public:
 	
 private:
 	std::vector<Move> createMoves(Chessboard &chessboard);			// 获取合法落子点
-	int evaluate(Chessboard& chessboard, Chess chess);				// 估值算法
+	int evaluate(Chessboard& chessboard);							// 估值算法
 	Move searchMove(Chessboard& chessboard);						// 搜索算法
 	int maxValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MAX
 	int minValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MIN
-	std::regex black_regex[100];
-	std::regex white_regex[100];
-	int cost_self[10];
-	int cost_opp[10];
+	Chess chess;					// 所执棋色
+	std::regex black_regex[100];	// 辅助数组
+	std::regex white_regex[100];	// 辅助数组
+	int cost_self[10];				// 辅助数组
+	int cost_opp[10];				// 辅助数组
+
 };
 
 #endif

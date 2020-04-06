@@ -261,6 +261,7 @@ void Chessboard::printChessboard() {
 		}
 		printf_s("\n");
 	}
+	printf_s("\n");
 	return;
 }
 

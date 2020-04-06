@@ -9,8 +9,10 @@
 * [枚举] 角色
 ***************/
 enum class Role {
-	PLAYER = 0,		// 玩家
-	ROBOT = 1,		// 机器
+	DEFAULT = 0,	// 默认
+	PLAYER = 1,		// 玩家
+	ROBOT = 2,		// 机器
+
 };
 enum class Stage {
 	DEFAULT = 0,	// 默认
@@ -30,6 +32,7 @@ public:
 	void describe();		// 描述函数 --- 输出帮助信息
 private:
 	Role sente;				// 先行方
+	Chess winner;			// 获胜方
 	Stage stage;			// 游戏阶段
 	// TODO
 

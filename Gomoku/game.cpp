@@ -8,7 +8,7 @@ const bool DEBUG_MODE = false;
 /***************
 * [函数] 构造函数
 ***************/
-Game::Game(): sente(Role::PLAYER), stage(Stage::DEFAULT) {
+Game::Game(): sente(Role::DEFAULT), winner(Chess::BLANK), stage(Stage::DEFAULT) {
 	return;
 }
 
@@ -29,12 +29,20 @@ void Game::start() {
 	Move move = Move(0, 0);
 	while (true) {
 		// *** 打印游戏信息 ***
-		system("cls");			// 清空屏幕			
-		describe();				// 打印帮助信息
-		printChessboard();		// 打印棋盘
-		printf_s("\n");
-		printChessRecord(-2);	// 打印棋局记录
-		printChessRecord(-1);	// 打印棋局记录
+		system("cls");					// 清空屏幕			
+		describe();						// 打印帮助信息
+		printChessboard();				// 打印棋盘
+		printChessRecord(-2);			// 打印棋局记录
+		printChessRecord(-1);			// 打印棋局记录
+		if (stage == Stage::GAMEOVER) {	// 打印获胜信息
+			printf_s("%-12s", "【游戏结束】 ");
+			if (winner == Chess::BLACK)
+				printf_s("○ 获胜！\n");
+			else if (winner == Chess::WHITE)
+				printf_s("● 获胜！\n");
+			else
+				printf_s("和棋！\n");
+		}
 		// *** 用户进行决策 ***
 		chess = getCurrentChess();
 		while (true) {
@@ -45,51 +53,89 @@ void Game::start() {
 			if (DEBUG_MODE)
 				printf_s("@ 用户输入操作：(%d,%d,%d)\n", int(operation), move.x, move.y);
 			// * 处理用户输入 *
+			// <newblack>
 			if (operation == Operation::NEWBLACK) {
 				sente = Role::ROBOT;		// 更新先行方
 				stage = Stage::UNDERWAY;	// 更新游戏阶段
 				initMove();					// 重置棋盘
 				break;
 			}
+			// <newwhite>
 			if (operation == Operation::NEWWHITE) {
 				sente = Role::PLAYER;		// 更新先行方
 				stage = Stage::UNDERWAY;	// 更新游戏阶段
 				initMove();					// 重置棋盘
 				break;
 			}
+			// <move>
 			if (operation == Operation::MOVE) {
-				if (stage != Stage::UNDERWAY) {
+				if (stage == Stage::UNDERWAY) {
+					// 行棋
+					status = makeMove(move.x, move.y);
+					if (status == Status::F_OUTSIDE) {
+						printf_s("[×] 非法落子 - 界外！\n");
+						continue;
+					}
+					if (status == Status::F_NOBLANK) {
+						printf_s("[×] 非法落子 - 非空！\n");
+						continue;
+					}
+					// 胜负判断
+					status = gameOver();
+					if (status == Status::G_BLACK) {
+						winner = Chess::BLACK;
+						stage = Stage::GAMEOVER;
+					}
+					else if (status == Status::G_WHITE) {
+						winner = Chess::WHITE;
+						stage = Stage::GAMEOVER;
+					}
+					else if (status == Status::G_DRAW) {
+						winner = Chess::BLANK;
+						stage = Stage::GAMEOVER;
+					}
+					break;
+				}
+				if (stage == Stage::GAMEOVER) {
+					printf_s("[×] 对局已结束，请键入<newblack>/<newwhite>以开始新对局。\n");
+					continue;
+				}
+				if (stage == Stage::DEFAULT) {
 					printf_s("[×] 对局未开始，请键入<newblack>/<newwhite>以开始对局。\n");
 					continue;
 				}
-				status = makeMove(move.x, move.y);	// 行棋
-				if (status == Status::F_OUTSIDE) {
-					printf_s("[×] 非法落子 - 界外！\n");
-					continue;
-				}
-				if (status == Status::F_NOBLANK) {
-					printf_s("[×] 非法落子 - 非空！\n");
-					continue;
-				}
-				break;
 			}
+			// <withdraw>
 			if (operation == Operation::WITHDRAW) {
-				if (stage != Stage::UNDERWAY) {
+				if (stage == Stage::UNDERWAY || stage == Stage::GAMEOVER) {
+					// 悔棋 撤销两步以包含所有情况
+					status = unMakeMove();
+					status = unMakeMove();
+					stage = Stage::UNDERWAY;	// 游戏继续
+					break;
+				}
+				if (stage == Stage::DEFAULT) {
 					printf_s("[×] 对局未开始，请键入<newblack>/<newwhite>以开始对局。\n");
 					continue;
 				}
-				status = unMakeMove();				// 悔棋 - 撤销AI
-				status = unMakeMove();				// 悔棋 - 撤销玩家
-				break;
 			}
+			// <tips>
 			if (operation == Operation::TIPS) {
-				if (stage != Stage::UNDERWAY) {
+				if (stage == Stage::UNDERWAY) {
+					move = getRobotDecision(*this);
+					printf_s("[√] AI建议：(%X, %X)\n", move.x, move.y);
+					continue;
+				}
+				if (stage == Stage::GAMEOVER) {
+					printf_s("[√] 游戏已结束，请键入<newblack>/<newwhite>以开始新对局，或键入<withdraw>以悔棋。\n");
+					continue;
+				}
+				if (stage != Stage::DEFAULT) {
 					printf_s("[×] 对局未开始，请键入<newblack>/<newwhite>以开始对局。\n");
 					continue;
 				}
-				printf_s("[√] 只要思想不滑坡，问题总比办法多！\n");
-				continue;
 			}
+			// <exit>
 			if (operation == Operation::EXIT) {
 				printf_s("[√] 已退出游戏。\n");
 				exit(0);							// 退出程序
@@ -104,10 +150,25 @@ void Game::start() {
 		if ((chess == Chess::WHITE) && (sente == Role::ROBOT))
 			continue;
 		move = getRobotDecision(*this);						// 获取机器决策
-		if (makeMove(move.x, move.y) != Status::S_OK) {		// 行棋
+		// 行棋
+		if (makeMove(move.x, move.y) != Status::S_OK) {	
 			printf_s("[×] AI故障，程序已终止。\n");
 			exit(1);
-		}	
+		}
+		// 胜负判断
+		status = gameOver();
+		if (status == Status::G_BLACK) {
+			winner = Chess::BLACK;
+			stage = Stage::GAMEOVER;
+		}
+		else if (status == Status::G_WHITE) {
+			winner = Chess::WHITE;
+			stage = Stage::GAMEOVER;
+		}
+		else if (status == Status::G_DRAW) {
+			winner = Chess::BLANK;
+			stage = Stage::GAMEOVER;
+		}
 	}
 	return;
 }
