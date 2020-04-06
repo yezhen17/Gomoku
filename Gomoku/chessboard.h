@@ -89,7 +89,7 @@ private:
 	}
 	// 棋子转字符
 	inline char chess2char(Chess x) {
-		return (x == Chess::BLACK ? '1' : '2');
+		return '0' + int(x);
 	}
 	// 友元类声明
 	friend class Player;

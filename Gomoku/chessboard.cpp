@@ -167,28 +167,28 @@ Status Chessboard::gameOver() {
 	int i = 0;
 	for (int j = xi; j <= xj; j++) {
 		hrz[i++] = horizontals[y - 1][x + j];
-		cout << x + j << " " << y << endl;
+		//cout << x + j << " " << y << endl;
 	}
 	int yi = y - 4 < 1 ? 1 - y : -4;
 	int yj = y + 4 < GRID_NUM ? 4 : GRID_NUM - y;
 	i = 0;
 	for (int j = yi; j <= yj; j++) {
 		vtc[i++] = verticals[x - 1][y + j];
-		cout << x << " " << y + j << endl;
+		//cout << x << " " << y + j << endl;
 	}
 	int ui = xi < -yj ? -yj : xi;
 	int uj = xj < -yi ? xj : -yi;
 	i = 0;
 	for (; ui <= uj; ui++) {
 		upd[i++] = chess2char(chessboard[y - ui][x + ui]);
-		cout <<x + ui << " " << y - ui << endl;
+		//cout <<x + ui << " " << y - ui << endl;
 	}
 	int di = xi < yi ? yi : xi;
 	int dj = xj < yj ? xj : yj;
 	i = 0;
 	for (; di <= dj; di++) {
 		dnd[i++] = chess2char(chessboard[y + di][x + di]);
-		cout << x + di << " " << y + di << endl;
+		//cout << x + di << " " << y + di << endl;
 	}
 	
 	if (std::regex_search(hrz, black_win)) {

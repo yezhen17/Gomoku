@@ -3,13 +3,20 @@
 #define _ROBOT_H_
 #include "chessboard.h"
 
-
 /***************
 * [常量] 定义
 ***************/
 const int MAX_VALUE = 0x3f3f3f3f;		// 极大值
 const int MIN_VALUE = -0x3f3f3f3f;		// 极小值
-const int MAX_DEPTH = 2;				// 最大搜索深度
+const int MAX_DEPTH = 3;				// 最大搜索深度
+struct pattern {
+	char P[7];
+	int m;
+	pattern() {}
+	pattern(const char *P_, int m_) { memcpy(P, P_, 7); m = m_; }
+};
+int *compute_prefix(char *P, int m);
+int KMP_matcher(char *P, char*T, int m, int n);
 
 /***************
 * [类] 机器
@@ -28,10 +35,13 @@ private:
 	int maxValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MAX
 	int minValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MIN
 	Chess chess;					// 所执棋色
+
+	pattern black_p[20];
+	pattern white_p[20];
 	std::regex black_regex[100];	// 辅助数组
 	std::regex white_regex[100];	// 辅助数组
-	int cost_self[10];				// 辅助数组
-	int cost_opp[10];				// 辅助数组
+	int cost_self[20];				// 辅助数组
+	int cost_opp[20];				// 辅助数组
 
 };
 
