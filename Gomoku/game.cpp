@@ -160,7 +160,7 @@ void Game::start() {
 		if (DEBUG_MODE)
 			printf_s("@ AI落子：(%d,%d)\n", move.x, move.y);
 		if (makeMove(move.x, move.y) != Status::S_OK) {	
-			printf_s("[×] AI故障，程序已终止。\n");
+			printf_s("[×] AI决策故障，程序已终止。\n");
 			exit(1);
 		}
 		// 胜负判断

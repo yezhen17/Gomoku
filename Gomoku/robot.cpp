@@ -143,15 +143,7 @@ Move Robot::getRobotDecision(Chessboard& chessboard) {
 	if (chessboard.getCurrentStep() == 1)
 		return Move((GRID_NUM + 1) >> 1, (GRID_NUM + 1) >> 1);
 	// 进行搜索
-	int x = chessboard.getCurrentStep();
-	cout << "前：" << x << endl;
-
 	chess = chessboard.getCurrentChess();	// 记录所执棋色
-
-	x = chessboard.getCurrentStep();
-	cout << "后：" << x << endl;
-	
-
 	return searchMove(chessboard);
 }
 
@@ -322,6 +314,7 @@ int Robot::evaluate(Chessboard& chessboard) {
 //裴博文. 五子棋人工智能权重估值算法[J]. 电脑编程技巧与维护, 2008(6):69-75.
 //https://www.cnblogs.com/maxuewei2/p/4825520.html
 
+
 /***************
 * [函数] 搜索算法
 * 使用α-β剪枝
@@ -332,9 +325,22 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 	Move move(0, 0);
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
-		chessboard.makeMove(m.x, m.y);
+
+		// TODO
+		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
+			printf_s("**** FUCK CORE ****\n");
+			exit(1);
+		}
+
+		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
+			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
+			exit(1);
+		}
 		tmp_value = minValue(chessboard, depth + 1, a, b);
-		chessboard.unMakeMove();
+		if (chessboard.unMakeMove() != Status::S_OK) {
+			printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
+			exit(1);
+		}
 		if (tmp_value > max_value) {
 			max_value = tmp_value;
 			move = m;
@@ -357,9 +363,23 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 	int max_value = MIN_VALUE, tmp_value = 0;
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
-		chessboard.makeMove(m.x, m.y);
+
+		// TODO
+		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
+			printf_s("**** FUCK MIN ****\n");
+			exit(1);
+		}
+
+
+		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
+			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
+			exit(1);
+		}
 		tmp_value = minValue(chessboard, depth + 1, a, b);
-		chessboard.unMakeMove();
+		if (chessboard.unMakeMove() != Status::S_OK) {
+			printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
+			exit(1);
+		}
 		if (tmp_value > max_value)
 			max_value = tmp_value;
 		if (max_value >= b)
@@ -377,14 +397,29 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 * 循环不变式: 调用前后，chessboard状态不变
 ***************/
 int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
+	int temp = chessboard.getCurrentStep();
 	if (depth > MAX_DEPTH)
 		return evaluate(chessboard);
 	int min_value = MAX_VALUE, tmp_value = 0;
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
-		chessboard.makeMove(m.x, m.y);
+
+		// TODO
+		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
+			printf_s("**** FUCK MIN ****\n");
+			exit(1);
+		}
+
+
+		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
+			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
+			exit(1);
+		}
 		tmp_value = maxValue(chessboard, depth + 1, a, b);
-		chessboard.unMakeMove();
+		if (chessboard.unMakeMove() != Status::S_OK) {
+			printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
+			exit(1);
+		}
 		if (tmp_value < min_value)
 			min_value = tmp_value;
 		if (min_value <= a)

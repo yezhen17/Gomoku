@@ -62,6 +62,10 @@ public:
 	void printChessboard();								// 打印棋盘
 	bool printChessRecord(int step);					// 打印棋局记录
 protected:
+	// 判断位置是否为空
+	inline bool isBlank(const int x, const int y) {
+		return chessboard[x][y] == Chess::BLANK;
+	}
 	// 根据棋局记录获取当前下一步数
 	inline int getCurrentStep() {
 		return (chessRecord.size() + 1);
@@ -82,7 +86,6 @@ private:
 	int fx[16] = {-1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, 0, 0, 2, 2, 2};
 	int fy[16] = {-1, 0, 1, -1, 1, -1, 0, 1, -2, 0, 2, -2, 2, -2, 0, 2};
 	int fnum = 16;
-
 	// 检验招法是否在棋盘上
 	inline bool inChessboard(const int x, const int y) {
 		return (x >= 1 && x <= GRID_NUM && y >= 1 && y <= GRID_NUM);	
