@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 
-const bool DEBUG_MODE = false;
+const bool DEBUG_MODE = true;
 
 /***************
 * [函数] 构造函数
@@ -29,7 +29,7 @@ void Game::start() {
 	Move move = Move(0, 0);
 	while (true) {
 		// *** 打印游戏信息 ***
-		system("cls");					// 清空屏幕			
+		if (!DEBUG_MODE) system("cls");					// 清空屏幕			
 		describe();						// 打印帮助信息
 		printChessboard();				// 打印棋盘
 		printChessRecord(-2);			// 打印棋局记录
@@ -72,6 +72,8 @@ void Game::start() {
 				if (stage == Stage::UNDERWAY) {
 					// 行棋
 					status = makeMove(move.x, move.y);
+					if (DEBUG_MODE)
+						printf_s("@ 玩家落子：(%d,%d,%d)\n", move.x, move.y, status);
 					if (status == Status::F_OUTSIDE) {
 						printf_s("[×] 非法落子 - 界外！\n");
 						continue;
@@ -149,8 +151,14 @@ void Game::start() {
 			continue;
 		if ((chess == Chess::WHITE) && (sente == Role::ROBOT))
 			continue;
+		if (DEBUG_MODE)
+			printf_s("@ AI决策前步数：(%d)\n", getCurrentStep());
 		move = getRobotDecision(*this);						// 获取机器决策
+		if (DEBUG_MODE)
+			printf_s("@ AI决策后步数：(%d)\n", getCurrentStep());
 		// 行棋
+		if (DEBUG_MODE)
+			printf_s("@ AI落子：(%d,%d)\n", move.x, move.y);
 		if (makeMove(move.x, move.y) != Status::S_OK) {	
 			printf_s("[×] AI故障，程序已终止。\n");
 			exit(1);

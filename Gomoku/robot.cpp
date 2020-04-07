@@ -139,7 +139,15 @@ Move Robot::getRobotDecision(Chessboard& chessboard) {
 	if (chessboard.getCurrentStep() == 1)
 		return Move((GRID_NUM + 1) >> 1, (GRID_NUM + 1) >> 1);
 	// 进行搜索
+	int x = chessboard.getCurrentStep();
+	cout << "前：" << x << endl;
+
 	chess = chessboard.getCurrentChess();	// 记录所执棋色
+
+	x = chessboard.getCurrentStep();
+	cout << "后：" << x << endl;
+	
+
 	return searchMove(chessboard);
 }
 

@@ -20,7 +20,7 @@ int KMP_matcher(char *P, char*T, int m, int n);
 
 /***************
 * [类] 机器
-* 包含机器相关算法
+*+ 包含机器相关算法
 ***************/
 class Robot {
 public:
@@ -29,7 +29,7 @@ public:
 	Move getRobotDecision(Chessboard& chessboard);	// [接口] 获取机器决策
 	
 private:
-	std::vector<Move> createMoves(Chessboard &chessboard);			// 获取合法落子点
+	std::vector<Move> createMoves(Chessboard& chessboard);			// 获取合法落子点
 	int evaluate(Chessboard& chessboard);							// 估值算法
 	Move searchMove(Chessboard& chessboard);						// 搜索算法
 	int maxValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MAX
