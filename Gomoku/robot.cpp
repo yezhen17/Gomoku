@@ -154,7 +154,7 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 	vector<Move> moves;
 	for (int i = 1; i <= GRID_NUM; i++)
 		for (int j = GRID_NUM; j >= 1; j--)
-			if (chessboard.possibleMoves[i][j] > 0 && chessboard.possibleMoves[i][j] <= chessboard.fnum)
+			if (chessboard.possibleMoves[i][j] > 0 && chessboard.possibleMoves[i][j] < chessboard.fnum)
 				moves.push_back(Move(i, j));
     
 	return moves;
