@@ -3,7 +3,7 @@
 #include <string>
 using namespace std;
 
-const bool DEBUG_MODE = true;
+const bool DEBUG_MODE = false;
 
 /***************
 * [函数] 构造函数

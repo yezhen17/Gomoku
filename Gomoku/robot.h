@@ -8,7 +8,7 @@
 ***************/
 const int MAX_VALUE = 0x3f3f3f3f;		// 极大值
 const int MIN_VALUE = -0x3f3f3f3f;		// 极小值
-const int MAX_DEPTH = 2;				// 最大搜索深度
+const int MAX_DEPTH = 4;				// 最大搜索深度
 struct pattern {
 	char P[7];
 	int m;
@@ -31,6 +31,7 @@ public:
 private:
 	std::vector<Move> createMoves(Chessboard& chessboard);			// 获取合法落子点
 	int evaluate(Chessboard& chessboard);							// 估值算法
+	int evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min = 0);
 	Move searchMove(Chessboard& chessboard);						// 搜索算法
 	int maxValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MAX
 	int minValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MIN

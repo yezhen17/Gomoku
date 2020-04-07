@@ -105,25 +105,6 @@ Robot::Robot() {
 	cost_opp[9] = 1000;
 	cost_opp[10] = 1000;
 	cost_opp[11] = 100;
-	/*cost_self[0] = 300000; // 五
-	cost_self[1] = 10000; //活四
-	cost_self[2] = 1000; //死四
-	cost_self[3] = 1000; // 活三
-	cost_self[4] = 100; // 死三
-	cost_self[5] = 100; // 活二
-	cost_self[6] = 10; // 死二
-	cost_self[7] = 10; // 活一
-	cost_self[8] = 1; // 死一
-
-	cost_opp[0] = 300000; // 五
-	cost_opp[1] = 10000; //活四
-	cost_opp[2] = 1000; //死四
-	cost_opp[3] = 1000; // 活三
-	cost_opp[4] = 100; // 死三
-	cost_opp[5] = 100; // 活二
-	cost_opp[6] = 10; // 死二
-	cost_opp[7] = 10; // 活一
-	cost_opp[8] = 1; // 死一*/
 	return;
 }
 
@@ -156,8 +137,306 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 		for (int j = GRID_NUM; j >= 1; j--)
 			if (chessboard.possibleMoves[i][j] > 0 && chessboard.possibleMoves[i][j] < chessboard.fnum)
 				moves.push_back(Move(i, j));
-    
+
+	vector<int> evals;
+	Move best;
+	Chess cur = chessboard.getCurrentChess();
+	int max = 0;
+	for (const auto mv : moves) {
+		int eval = evaluatePoint(chessboard, mv, cur);
+		if (eval > max) {
+			max = eval;
+			best = mv;
+		}
+		evals.push_back(eval);
+	}
+	if (max >= 10000) {
+		vector<Move> res;
+		res.push_back(best);
+		return res;
+	}
+	for (int i = 0; i < moves.size(); i++) {
+		for (int j = 0; j < moves.size() - i - 1; j++) {
+			if (evals[j] < evals[j + 1]) {
+				Move tmp = moves[j + 1];
+				moves[j + 1] = moves[j];
+				moves[j] = tmp;
+				int tmp2 = evals[j + 1];
+				evals[j + 1] = evals[j];
+				evals[j] = tmp2;
+			}
+		}
+	}
+	if (max >= 2000) {
+		for (int i = moves.size() - 1; i >= 0; i--) {
+			if (evals[i] < 1000)
+				moves.pop_back();
+		}
+	}
+	
 	return moves;
+}
+
+int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
+{
+	if (chessboard.getCurrentStep() < 6) {
+		return 0;
+	}
+	char same, oppo;
+	if (cur == Chess::BLACK) {
+		same = '1';
+		oppo = '2';
+	}
+	else {
+		same = '2';
+		oppo = '1';
+	}
+	int x = mv.x, y = mv.y;
+	bool left_block[4] = { true, true, true, true };
+	bool right_block[4] = { true, true, true, true };
+	bool left_block_second[4] = { true, true, true, true };
+	bool right_block_second[4] = { true, true, true, true };
+	int left_first[4] = { 0, 0, 0, 0 };
+	int left_second[4] = { 0, 0, 0, 0 };
+	int right_first[4] = { 0, 0, 0, 0 };
+	int right_second[4] = { 0, 0, 0, 0 };
+
+	int oppo_whole[4] = { 0, 0, 0, 0 };
+	bool oppo_both_open[4] = { true, true, true, true };
+
+
+	char *c = &chessboard.horizontals[x - 1][y - 1];
+	char *d = c + 2;
+	char *e = c, *f = d;
+	while (*c == same) {
+		++left_first[0];
+		--c;
+	}
+	if (*c == '0') {
+		left_block[0] = false;
+		--c;
+		while (*c == same) {
+			++left_second[0];
+			--c;
+		}
+		if (*c == '0') {
+			left_block_second[0] = false;
+		}
+	}
+	while (*d == same) {
+		++right_first[0];
+		++d;
+	}
+	if (*d == '0') {
+		right_block[0] = false;
+		++d;
+		while (*d == same) {
+			++right_second[0];
+			++d;
+		}
+		if (*d == '0') {
+			right_block_second[0] = false;
+		}
+	}
+	while (*e == oppo) {
+		++oppo_whole[0];
+		--e;
+	}
+	if (*e != '0') {
+		oppo_both_open[0] = false;
+	}
+	while (*f == oppo) {
+		++oppo_whole[0];
+		++f;
+	}
+	if (*f != '0') {
+		oppo_both_open[0] = false;
+	}
+
+	c = &chessboard.verticals[y - 1][x - 1];
+	d = c + 2;
+	e = c, f = d;
+	while (*c == same) {
+		++left_first[1];
+		--c;
+	}
+	if (*c == '0') {
+		left_block[1] = false;
+		--c;
+		while (*c == same) {
+			++left_second[1];
+			--c;
+		}
+		if (*c == '0') {
+			left_block_second[1] = false;
+		}
+	}
+	while (*d == same) {
+		++right_first[1];
+		++d;
+	}
+	if (*d == '0') {
+		right_block[1] = false;
+		++d;
+		while (*d == same) {
+			++right_second[1];
+			++d;
+		}
+		if (*d == '0') {
+			right_block_second[1] = false;
+		}
+	}
+	while (*e == oppo) {
+		++oppo_whole[1];
+		--e;
+	}
+	if (*e != '0') {
+		oppo_both_open[1] = false;
+	}
+	while (*f == oppo) {
+		++oppo_whole[1];
+		++f;
+	}
+	if (*f != '0') {
+		oppo_both_open[1] = false;
+	}
+
+	if (x + y <= GRID_NUM + 1) {
+		c = &chessboard.up_diagonals[x + y - 2][y - 1];
+	}
+	else {
+		c = &chessboard.up_diagonals[x + y - 2][GRID_NUM - x];
+	}
+	d = c + 2;
+	e = c, f = d;
+	while (*c == same) {
+		++left_first[2];
+		--c;
+	}
+	if (*c == '0') {
+		left_block[2] = false;
+		--c;
+		while (*c == same) {
+			++left_second[2];
+			--c;
+		}
+		if (*c == '0') {
+			left_block_second[2] = false;
+		}
+	}
+	while (*d == same) {
+		++right_first[2];
+		++d;
+	}
+	if (*d == '0') {
+		right_block[2] = false;
+		++d;
+		while (*d == same) {
+			++right_second[2];
+			++d;
+		}
+		if (*d == '0') {
+			right_block_second[2] = false;
+		}
+	}
+	while (*e == oppo) {
+		++oppo_whole[2];
+		--e;
+	}
+	if (*e != '0') {
+		oppo_both_open[2] = false;
+	}
+	while (*f == oppo) {
+		++oppo_whole[2];
+		++f;
+	}
+	if (*f != '0') {
+		oppo_both_open[2] = false;
+	}
+
+	if (y - x <= 0) {
+		c = &chessboard.down_diagonals[y - x + GRID_NUM - 1][y - 1];
+	}
+	else {
+		c = &chessboard.down_diagonals[y - x + GRID_NUM - 1][x - 1];
+	}
+	d = c + 2;
+	e = c, f = d;
+	while (*c == same) {
+		++left_first[3];
+		--c;
+	}
+	if (*c == '0') {
+		left_block[3] = false;
+		--c;
+		while (*c == same) {
+			++left_second[3];
+			--c;
+		}
+		if (*c == '0') {
+			left_block_second[3] = false;
+		}
+	}
+	while (*d == same) {
+		++right_first[3];
+		++d;
+	}
+	if (*d == '0') {
+		right_block[3] = false;
+		++d;
+		while (*d == same) {
+			++right_second[3];
+			++d;
+		}
+		if (*d == '0') {
+			right_block_second[3] = false;
+		}
+	}
+	while (*e == oppo) {
+		++oppo_whole[3];
+		--e;
+	}
+	if (*e != '0') {
+		oppo_both_open[3] = false;
+	}
+	while (*f == oppo) {
+		++oppo_whole[3];
+		++f;
+	}
+	if (*f != '0') {
+		oppo_both_open[3] = false;
+	}
+
+	int sum_self = 0;
+	int d4a3 = 0;
+	int weak = 0;
+	for (int i = 0; i < 4; i++) {
+		int seq_same = left_first[i] + right_first[i];
+		int seq_gap1_same_left = seq_same + left_second[i];
+		int seq_gap1_same_right = seq_same + right_second[i];
+		int seq_gap2_same = seq_gap1_same_left + right_second[i];
+
+		bool either_block = left_block[i] || right_block[i];
+		bool both_block = left_block[i] && right_block[i];
+
+		//  冲四活三or双活三权值比死4低，不合理，待改进
+		if (seq_same == 4) sum_self = 10000000; // 己方5
+		else if (oppo_whole[i] == 4) sum_self = 1000000; // 对方5
+		else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && seq_same == 2) sum_self = 100000; // 己方1011101
+		else if (seq_same == 3 && !either_block) sum_self = 100000; // 己方活4
+		else if (oppo_whole[i] == 3 && oppo_both_open[i]) sum_self = 10000; // 对方活4
+		else if (seq_same == 3 && !both_block && either_block) ++d4a3; // 己方死4
+		else if (seq_same == 2 && (seq_gap1_same_left > 2 || seq_gap1_same_right > 2))  ++d4a3; // 己方死4
+		else if (seq_same == 2 && !either_block) ++d4a3; // 己方活3
+		else if (seq_same == 1 && (seq_gap1_same_left > 2 && !left_block_second[i] && !right_block[i]
+			|| seq_gap1_same_right > 2 && !right_block_second[i] && !left_block[i])) ++d4a3; //己方活3
+
+		// else if (seq_same == 1 && !left_block_second[i] && !right_block_second[i]) ++weak; // 己方活2
+
+	}
+	if (sum_self) return sum_self;
+	if (d4a3) return d4a3 * 1000;
+	return weak * 100;
 }
 
 /***************
@@ -178,92 +457,7 @@ int Robot::evaluate(Chessboard& chessboard) {
 		memcpy(cost_black, cost_opp, 20 * sizeof(int));
 		memcpy(cost_white, cost_self, 20 * sizeof(int));
 	}
-	/*
-	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		for (int j = 0; j < 6; j++)
-		{
-			int blacksum = 0, whitesum = 0;
-			std::cmatch cm;
-			if (i < GRID_NUM) {
-				std::regex_search(chessboard.horizontals[i], cm, black_regex[j]);
-				blacksum += cm.size();
-				std::regex_search(chessboard.verticals[i], cm, black_regex[j]);
-				blacksum += cm.size();
-				std::regex_search(chessboard.horizontals[i], cm, white_regex[j]);
-				whitesum += cm.size();
-				std::regex_search(chessboard.verticals[i], cm, white_regex[j]);
-				whitesum += cm.size();
-			}
-
-			std::regex_search(chessboard.up_diagonals[i], cm, black_regex[j]);
-			blacksum += cm.size();
-			std::regex_search(chessboard.down_diagonals[i], cm, black_regex[j]);
-			blacksum += cm.size();
-			std::regex_search(chessboard.up_diagonals[i], cm, white_regex[j]);
-			whitesum += cm.size();
-			std::regex_search(chessboard.down_diagonals[i], cm, white_regex[j]);
-			whitesum += cm.size();
-
-			black_value += blacksum * cost_black[j];
-			white_value += whitesum * cost_white[j];
-		}
-	}
-	*/
-	/*
-	std::regex exist_regex("[12]");
-	for (int i = 0; i < 15; i++) {
-		if (!std::regex_search(chessboard.horizontals[i], exist_regex))
-			continue;
-		for (int j = 0; j < 11; j++)
-		{
-			//std::cmatch cm;
-			//std::regex_search(chessboard.horizontals[i], cm, black_regex[j]);
-			
-			//black_value += cm.size() * cost_black[j];
-			black_value += KMP_matcher(black_p[j].P, chessboard.horizontals[i], black_p[j].m, GRID_NUM) * cost_black[j];
-			white_value += KMP_matcher(white_p[j].P, chessboard.horizontals[i], white_p[j].m, GRID_NUM) * cost_white[j];
-			
-			//std::regex_search(chessboard.horizontals[i], cm, white_regex[j]);
-			//white_value += cm.size() * cost_white[j];
-		}
-	}
-	for (int i = 0; i < 15; i++) {
-		if (!std::regex_search(chessboard.verticals[i], exist_regex))
-			continue;
-		for (int j = 0; j < 6; j++)
-		{
-			std::cmatch cm;
-			std::regex_search(chessboard.verticals[i], cm, black_regex[j]);
-			black_value += cm.size() * cost_black[j];
-			std::regex_search(chessboard.verticals[i], cm, white_regex[j]);
-			white_value += cm.size() * cost_white[j];
-		}
-	}
-	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (!std::regex_search(chessboard.up_diagonals[i], exist_regex))
-			continue;
-		for (int j = 0; j < 6; j++)
-		{
-			std::cmatch cm;
-			std::regex_search(chessboard.up_diagonals[i], cm, black_regex[j]);
-			black_value += cm.size() * cost_black[j];
-			std::regex_search(chessboard.up_diagonals[i], cm, white_regex[j]);
-			white_value += cm.size() * cost_white[j];
-		}
-	}
-	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (!std::regex_search(chessboard.down_diagonals[i], exist_regex))
-			continue;
-		for (int j = 0; j < 6; j++)
-		{
-			std::cmatch cm;
-			std::regex_search(chessboard.down_diagonals[i], cm, black_regex[j]);
-			black_value += cm.size() * cost_black[j];
-			std::regex_search(chessboard.down_diagonals[i], cm, white_regex[j]);
-			white_value += cm.size() * cost_white[j];
-		}
-	}
-	*/
+	
 	std::regex exist_regex("[12]");
 	for (int i = 0; i < GRID_NUM; i++) {
 		if (!std::regex_search(chessboard.horizontals[i], exist_regex))
@@ -326,9 +520,8 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
 
-		// TODO
 		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
-			printf_s("**** FUCK CORE ****\n");
+			printf_s("**** XJ CORE ****\n");
 			exit(1);
 		}
 
@@ -364,12 +557,10 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
 
-		// TODO
 		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
-			printf_s("**** FUCK MIN ****\n");
+			printf_s("**** XJ MIN ****\n");
 			exit(1);
 		}
-
 
 		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
 			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
@@ -404,12 +595,10 @@ int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
 
-		// TODO
 		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
-			printf_s("**** FUCK MIN ****\n");
+			printf_s("**** XJ MIN ****\n");
 			exit(1);
 		}
-
 
 		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
 			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
