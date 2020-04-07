@@ -66,6 +66,7 @@ Robot::Robot() {
 	black_p[8] = pattern(".011100", 6);
 	black_p[9] = pattern(".011010", 6);
 	black_p[10] = pattern(".010110", 6);
+	black_p[11] = pattern(".001100", 6);
 	white_p[0] = pattern(".22222", 5);
 	white_p[1] = pattern(".022220", 6);
 	white_p[2] = pattern(".22220", 5);
@@ -77,6 +78,7 @@ Robot::Robot() {
 	white_p[8] = pattern(".022200", 6);
 	white_p[9] = pattern(".022020", 6);
 	white_p[10] = pattern(".020220", 6);
+	white_p[11] = pattern(".002200", 6);
 
 	cost_self[0] = 300000; // 五
 	cost_self[1] = 10000; 
@@ -89,6 +91,7 @@ Robot::Robot() {
 	cost_self[8] = 1000; 
 	cost_self[9] = 1000;
 	cost_self[10] = 1000;
+	cost_self[11] = 100;
 
 	cost_opp[0] = 300000; // 五
 	cost_opp[1] = 10000;
@@ -101,6 +104,7 @@ Robot::Robot() {
 	cost_opp[8] = 1000;
 	cost_opp[9] = 1000;
 	cost_opp[10] = 1000;
+	cost_opp[11] = 100;
 	/*cost_self[0] = 300000; // 五
 	cost_self[1] = 10000; //活四
 	cost_self[2] = 1000; //死四
@@ -261,19 +265,19 @@ int Robot::evaluate(Chessboard& chessboard) {
 	}
 	*/
 	std::regex exist_regex("[12]");
-	for (int i = 0; i < 15; i++) {
+	for (int i = 0; i < GRID_NUM; i++) {
 		if (!std::regex_search(chessboard.horizontals[i], exist_regex))
 			continue;
-		for (int j = 0; j < 11; j++)
+		for (int j = 0; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.horizontals[i], black_p[j].m, GRID_NUM) * cost_black[j];
 			white_value += KMP_matcher(white_p[j].P, chessboard.horizontals[i], white_p[j].m, GRID_NUM) * cost_white[j];
 		}
 	}
-	for (int i = 0; i < 15; i++) {
+	for (int i = 0; i < GRID_NUM; i++) {
 		if (!std::regex_search(chessboard.verticals[i], exist_regex))
 			continue;
-		for (int j = 0; j < 11; j++)
+		for (int j = 0; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.verticals[i], black_p[j].m, GRID_NUM) * cost_black[j];
 			white_value += KMP_matcher(white_p[j].P, chessboard.verticals[i], white_p[j].m, GRID_NUM) * cost_white[j];
@@ -283,7 +287,7 @@ int Robot::evaluate(Chessboard& chessboard) {
 		if (!std::regex_search(chessboard.up_diagonals[i], exist_regex))
 			continue;
 		int len = 15 - abs(14 - i);
-		for (int j = 0; j < 11; j++)
+		for (int j = 0; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.up_diagonals[i], black_p[j].m, len) * cost_black[j];
 			white_value += KMP_matcher(white_p[j].P, chessboard.up_diagonals[i], white_p[j].m, len) * cost_white[j];
@@ -293,7 +297,7 @@ int Robot::evaluate(Chessboard& chessboard) {
 		if (!std::regex_search(chessboard.down_diagonals[i], exist_regex))
 			continue;
 		int len = 15 - abs(14 - i);
-		for (int j = 0; j < 11; j++)
+		for (int j = 0; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.down_diagonals[i], black_p[j].m, len) * cost_black[j];
 			white_value += KMP_matcher(white_p[j].P, chessboard.down_diagonals[i], white_p[j].m, len) * cost_white[j];
