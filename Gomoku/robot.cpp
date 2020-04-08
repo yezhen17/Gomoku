@@ -149,7 +149,7 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 		}
 		evals.push_back(eval);
 	}
-	if (max >= 10000) {
+	if (max >= 1000) {
 		vector<Move> res;
 		res.push_back(best);
 		return res;
@@ -166,9 +166,9 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 			}
 		}
 	}
-	if (max >= 2000) {
+	if (max >= 200) {
 		for (int i = moves.size() - 1; i >= 0; i--) {
-			if (evals[i] < 1000)
+			if (evals[i] < 100)
 				moves.pop_back();
 		}
 	}
