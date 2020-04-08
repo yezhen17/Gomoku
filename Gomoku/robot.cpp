@@ -1,39 +1,8 @@
 #include "robot.h"
-
 #include <regex>
 using namespace std;
 
-int *compute_prefix(char *P, int m)
-{
-	int *pi = new int[m + 1];
-	pi[1] = 0;
-	int k = 0;
-	for (int q = 2; q <= m; q++)
-	{
-		while (k > 0 && P[k + 1] != P[q]) k = pi[k];
-		if (P[k + 1] == P[q]) k++;
-		pi[q] = k;
-	}
-	return pi;
-}
-int KMP_matcher(char *P, char*T, int m, int n)
-{
-	int *pi = compute_prefix(P, m);
-	int sum = 0;
-	int q = 0;
-	for (int i = 1; i <= n; i++)
-	{
-		while (q > 0 && P[q + 1] != T[i]) q = pi[q];
-		if (P[q + 1] == T[i]) q++;
-		if (q == m)
-		{
-			sum++;
-			q = pi[q];
-		}
-	}
-	delete []pi;
-	return sum;
-}
+
 
 /***************
 * [函数] 构造函数
@@ -438,7 +407,8 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 	}
 
 	int sum_self = 0;
-	int d4a3 = 0;
+	int d4 = 0;
+	int a3 = 0;
 	int weak = 0;
 	for (int i = 0; i < 4; i++) {
 		int seq_same = left_first[i] + right_first[i];
@@ -455,18 +425,20 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && seq_same == 2) sum_self = 100000; // 己方1011101
 		else if (seq_same == 3 && !either_block) sum_self = 100000; // 己方活4
 		else if (oppo_whole[i] == 3 && oppo_both_open[i]) sum_self = 10000; // 对方活4
-		else if (seq_same == 3 && !both_block && either_block) ++d4a3; // 己方死4
-		else if (seq_same == 2 && (seq_gap1_same_left > 2 || seq_gap1_same_right > 2))  ++d4a3; // 己方死4
-		else if (seq_same == 2 && !either_block) ++d4a3; // 己方活3
+		else if (seq_same == 3 && !both_block && either_block) ++d4; // 己方死4
+		else if (seq_same == 2 && (seq_gap1_same_left > 2 || seq_gap1_same_right > 2))  ++d4; // 己方死4
+		else if (seq_same == 2 && !either_block) ++a3; // 己方活3
 		else if (seq_same == 1 && (seq_gap1_same_left > 2 && !left_block_second[i] && !right_block[i]
-			|| seq_gap1_same_right > 2 && !right_block_second[i] && !left_block[i])) ++d4a3; //己方活3
+			|| seq_gap1_same_right > 2 && !right_block_second[i] && !left_block[i])) ++a3; //己方活3
 
 		// else if (seq_same == 1 && !left_block_second[i] && !right_block_second[i]) ++weak; // 己方活2
 
 	}
 	if (sum_self) return sum_self;
-	if (d4a3) return d4a3 * 1000;
-	return weak * 100;
+	if (d4 > 1) return 1000;
+	if (d4 && a3) return 1000;
+	if (a3 || d4) return (a3 + d4) * 100;
+	return weak * 10;
 }
 
 /***************
@@ -556,7 +528,7 @@ int Robot::evaluate(Chessboard& chessboard) {
 * 使用α-β剪枝
 ***************/
 Move Robot::searchMove(Chessboard& chessboard)  {
-	int depth = 1, a = MIN_VALUE, b = MAX_VALUE;
+	int depth = MAX_DEPTH, a = MIN_VALUE, b = MAX_VALUE;
 	int max_value = MIN_VALUE, tmp_value = 0;
 	Move move(0, 0);
 	vector<Move> moves = createMoves(chessboard);
@@ -574,7 +546,7 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
 			exit(1);
 		}
-		tmp_value = minValue(chessboard, depth + 1, a, b);
+		tmp_value = minValue(chessboard, depth - 1, a, b);
 		if (chessboard.unMakeMove() != Status::S_OK) {
 			printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
 			exit(1);
@@ -596,9 +568,18 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 * 循环不变式: 调用前后，chessboard状态不变
 ***************/
 int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
-	if (depth > MAX_DEPTH)
-		return evaluate(chessboard);
+	int val;
+	Cache& cache = chessboard.cache;
+	if ((val = cache.getCache(depth, a, b)) != VAL_UNKNOWN) {
+		return val;
+	}
+	if (depth == 0) {
+		val = evaluate(chessboard);
+		cache.setCache(val, hashfEXACT, depth);
+		return val;
+	}
 	int max_value = MIN_VALUE, tmp_value = 0;
+	int hashf = hashfALPHA;
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
 
@@ -611,18 +592,23 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
 			exit(1);
 		}
-		tmp_value = minValue(chessboard, depth + 1, a, b);
+		tmp_value = minValue(chessboard, depth - 1, a, b);
 		if (chessboard.unMakeMove() != Status::S_OK) {
 			printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
 			exit(1);
 		}
 		if (tmp_value > max_value)
 			max_value = tmp_value;
-		if (max_value >= b)
+		if (max_value >= b) {
+			cache.setCache(max_value, hashfBETA, depth);
 			return max_value;
-		if (max_value > a)
+		}
+		if (max_value > a) {
+			hashf = hashfEXACT;
 			a = max_value;
+		}
 	}
+	cache.setCache(max_value, hashf, depth);
 	return max_value;
 }
 
@@ -633,10 +619,18 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 * 循环不变式: 调用前后，chessboard状态不变
 ***************/
 int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
-	int temp = chessboard.getCurrentStep();
-	if (depth > MAX_DEPTH)
-		return evaluate(chessboard);
+	int val;
+	Cache& cache = chessboard.cache;
+	if ((val = cache.getCache(depth, a, b)) != VAL_UNKNOWN) {
+		return val;
+	}
+	if (depth == 0) {
+		val = evaluate(chessboard);
+		cache.setCache(val, hashfEXACT, depth);
+		return val;
+	}
 	int min_value = MAX_VALUE, tmp_value = 0;
+	int hashf = hashfBETA;
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
 
@@ -649,17 +643,22 @@ int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
 			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
 			exit(1);
 		}
-		tmp_value = maxValue(chessboard, depth + 1, a, b);
+		tmp_value = maxValue(chessboard, depth - 1, a, b);
 		if (chessboard.unMakeMove() != Status::S_OK) {
 			printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
 			exit(1);
 		}
 		if (tmp_value < min_value)
 			min_value = tmp_value;
-		if (min_value <= a)
+		if (min_value <= a) {
+			cache.setCache(min_value, hashfALPHA, depth);
 			return min_value;
-		if (min_value < b)
+		}
+		if (min_value < b) {
+			hashf = hashfEXACT;
 			b = min_value;
+		}
 	}
+	cache.setCache(min_value, hashf, depth);
 	return min_value;
 }

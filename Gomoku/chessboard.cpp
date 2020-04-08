@@ -83,11 +83,13 @@ Status Chessboard::makeMove(const int x, const int y) {
 	updiagonal_piece_count[color][x + y - 1]++;
 	downdiagonal_piece_count[color][y - x + GRID_NUM]++;
 
-
 	for (int i = 0; i < fnum; i++)
 			if (inChessboard(x + fx[i], y + fy[i]))
 				possibleMoves[x + fx[i]][y + fy[i]]++;
 	possibleMoves[x][y] += fnum;
+
+	cache.update(x, y, color);
+
 	return Status::S_OK;
 }
 
@@ -124,42 +126,13 @@ Status Chessboard::unMakeMove() {
 	vertical_piece_count[color][y]--;
 	updiagonal_piece_count[color][x + y - 1]--;
 	downdiagonal_piece_count[color][y - x + GRID_NUM]--;
-	/*
-	bool isPossible = false;
-	for (int i = -2; i <= 2; i++) {
-		for (int j = -2; j <= 2; j++) {
-			if (x + i < 1 || x + i > GRID_NUM || y + j < 1 || y + j > GRID_NUM)
-				continue;
-			if (possibleMoves[x + i][y + j] == Chess::BLACK) {
-				isPossible = true;
-			}
-		}	
-	}
-	if (isPossible) {
-		possibleMoves[x][y] = Chess::POSSIBLE;
-	}
-	else {
-		possibleMoves[x][y] = Chess::BLANK;
-	}*/
+
 	possibleMoves[x][y] -= fnum;
 	for (int i = 0; i < fnum; i++)
 			if (inChessboard(x + fx[i], y + fy[i]))
 				possibleMoves[x + fx[i]][y + fy[i]]--;
-			/*
-			if (possibleMoves[x + i][y + j] == Chess::POSSIBLE) {
-				bool isPossible = false;
-				int s = x + i, t = y + j;
-				for (int m = -2; m <= 2; m++) {
-					for (int n = -2; n <= 2; n++) {
-						if (s + m < 1 || s + m > GRID_NUM || t + n < 1 || t + n > GRID_NUM)
-							continue;
-						if (possibleMoves[s + m][t + n] == Chess::BLACK)
-							isPossible = true;
-					}
-				}
-				if (!isPossible)
-				    possibleMoves[x + i][y + j] = Chess::BLANK;
-			}	*/
+	cache.update(x, y, color);
+
 	return Status::S_OK;
 }
 

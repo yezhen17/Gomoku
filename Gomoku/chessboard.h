@@ -5,6 +5,7 @@
 #include <string.h>
 #include <vector>
 #include <regex>
+#include "zobrist.h"
 
 /***************
 * [常量] 定义
@@ -95,6 +96,9 @@ private:
 	int fx[16] = {-1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, 0, 0, 2, 2, 2};
 	int fy[16] = {-1, 0, 1, -1, 1, -1, 0, 1, -2, 0, 2, -2, 2, -2, 0, 2};
 	int fnum = 16;
+
+	Cache cache;
+
 	// 检验招法是否在棋盘上
 	inline bool inChessboard(const int x, const int y) {
 		return (x >= 1 && x <= GRID_NUM && y >= 1 && y <= GRID_NUM);	
