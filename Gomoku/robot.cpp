@@ -123,6 +123,36 @@ Move Robot::getRobotDecision(Chessboard& chessboard) {
 	// 首步 - 天元
 	if (chessboard.getCurrentStep() == 1)
 		return Move((GRID_NUM + 1) >> 1, (GRID_NUM + 1) >> 1);
+	if (chessboard.getCurrentStep() == 3) {
+		Move second_move = chessboard.getMove(2);
+		if (second_move.x == 8 && abs(second_move.y - 8) == 1 || second_move.y == 8 && abs(second_move.x - 8) == 1) {
+			if (second_move.x == 8)
+				return Move(7, second_move.y);
+			if (second_move.y == 8)
+				return Move(second_move.x, 7);
+		}
+		if (second_move.x <= 7 && second_move.y <= 7)
+			return Move(7, 9);
+		if (second_move.x <= 7 && second_move.y >= 9)
+			return Move(7, 7);
+		if (second_move.x >= 9 && second_move.y <= 7)
+			return Move(7, 7);
+		if (second_move.x >= 9 && second_move.y >= 9)
+			return Move(7, 9);
+		return Move(7, 7);
+	}
+	if (chessboard.getCurrentStep() == 2) {
+		Move first_move = chessboard.getMove(1);
+		int x = first_move.x, y = first_move.y;
+		if (x <= 8 && y <= 8)
+			return Move(x + 1, y + 1);
+		if (x <= 8 && y > 8)
+			return Move(x + 1, y - 1);
+		if (x > 8 && y <= 8)
+			return Move(x - 1, y + 1);
+		else
+			return Move(x - 1, y - 1);
+	}
 	// 进行搜索
 	chess = chessboard.getCurrentChess();	// 记录所执棋色
 	return searchMove(chessboard);
@@ -462,28 +492,37 @@ int Robot::evaluate(Chessboard& chessboard) {
 	for (int i = 0; i < GRID_NUM; i++) {
 		if (!std::regex_search(chessboard.horizontals[i], exist_regex))
 			continue;
-		for (int j = 0; j < 12; j++)
+		for (int j = bar[chessboard.horizontal_piece_count[0][i + 1]]; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.horizontals[i], black_p[j].m, GRID_NUM) * cost_black[j];
+		}
+		for (int j = bar[chessboard.horizontal_piece_count[1][i + 1]]; j < 12; j++)
+		{
 			white_value += KMP_matcher(white_p[j].P, chessboard.horizontals[i], white_p[j].m, GRID_NUM) * cost_white[j];
 		}
 	}
 	for (int i = 0; i < GRID_NUM; i++) {
 		if (!std::regex_search(chessboard.verticals[i], exist_regex))
 			continue;
-		for (int j = 0; j < 12; j++)
+		for (int j = bar[chessboard.vertical_piece_count[0][i + 1]]; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.verticals[i], black_p[j].m, GRID_NUM) * cost_black[j];
-			white_value += KMP_matcher(white_p[j].P, chessboard.verticals[i], white_p[j].m, GRID_NUM) * cost_white[j];
 		}
+		for (int j = bar[chessboard.vertical_piece_count[1][i + 1]]; j < 12; j++)
+		{
+			white_value += KMP_matcher(white_p[j].P, chessboard.verticals[i], white_p[j].m, GRID_NUM) * cost_white[j];
+		}	
 	}
 	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
 		if (!std::regex_search(chessboard.up_diagonals[i], exist_regex))
 			continue;
 		int len = 15 - abs(14 - i);
-		for (int j = 0; j < 12; j++)
+		for (int j = bar[chessboard.updiagonal_piece_count[0][i + 1]]; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.up_diagonals[i], black_p[j].m, len) * cost_black[j];
+		}
+		for (int j = bar[chessboard.updiagonal_piece_count[1][i + 1]]; j < 12; j++)
+		{
 			white_value += KMP_matcher(white_p[j].P, chessboard.up_diagonals[i], white_p[j].m, len) * cost_white[j];
 		}
 	}
@@ -491,9 +530,12 @@ int Robot::evaluate(Chessboard& chessboard) {
 		if (!std::regex_search(chessboard.down_diagonals[i], exist_regex))
 			continue;
 		int len = 15 - abs(14 - i);
-		for (int j = 0; j < 12; j++)
+		for (int j = bar[chessboard.downdiagonal_piece_count[0][i + 1]]; j < 12; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.down_diagonals[i], black_p[j].m, len) * cost_black[j];
+		}
+		for (int j = bar[chessboard.downdiagonal_piece_count[1][i + 1]]; j < 12; j++)
+		{
 			white_value += KMP_matcher(white_p[j].P, chessboard.down_diagonals[i], white_p[j].m, len) * cost_white[j];
 		}
 	}
@@ -518,6 +560,9 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 	int max_value = MIN_VALUE, tmp_value = 0;
 	Move move(0, 0);
 	vector<Move> moves = createMoves(chessboard);
+	if (moves.size() == 1) {
+		return moves.back();
+	}
 	for (auto m : moves) {
 
 		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {

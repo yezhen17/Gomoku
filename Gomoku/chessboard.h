@@ -74,6 +74,10 @@ protected:
 	inline Chess getCurrentChess() {
 		return ((chessRecord.size() & 1) ? Chess::WHITE : Chess::BLACK);
 	}
+	// 获取第num步落子位置
+	inline Move getMove(int num) {
+		return chessRecord[num - 1];
+	}
 private:
 	Chess chessboard[GRID_NUM + 1][GRID_NUM + 1];		// 棋盘变量
 	std::vector<Move> chessRecord;						// 棋局记录
@@ -83,6 +87,11 @@ private:
 	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 左下-右上方向对角线棋子
 	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 右下-左上方向对角线棋子
 	
+	int horizontal_piece_count[2][GRID_NUM + 1];
+	int vertical_piece_count[2][GRID_NUM + 1];
+	int updiagonal_piece_count[2][EFFECTIVE_DIAGONAL_NUM + 1];
+	int downdiagonal_piece_count[2][EFFECTIVE_DIAGONAL_NUM + 1];
+
 	int fx[16] = {-1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, 0, 0, 2, 2, 2};
 	int fy[16] = {-1, 0, 1, -1, 1, -1, 0, 1, -2, 0, 2, -2, 2, -2, 0, 2};
 	int fnum = 16;
@@ -94,6 +103,10 @@ private:
 	inline void clearChessboard() {
 		memset(chessboard, 0, sizeof(chessboard));
 		memset(possibleMoves, 0, sizeof(possibleMoves));
+		memset(horizontal_piece_count, 0, sizeof(horizontal_piece_count));
+		memset(vertical_piece_count, 0, sizeof(vertical_piece_count));
+		memset(updiagonal_piece_count, 0, sizeof(updiagonal_piece_count));
+		memset(downdiagonal_piece_count, 0, sizeof(downdiagonal_piece_count));
 	}
 	// 棋子转字符
 	inline char chess2char(Chess x) {

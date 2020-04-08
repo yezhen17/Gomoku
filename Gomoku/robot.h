@@ -44,6 +44,8 @@ private:
 	int cost_self[20];				// 辅助数组
 	int cost_opp[20];				// 辅助数组
 
+	int bar[16] = {12, 12, 11, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
 };
 
 #endif
