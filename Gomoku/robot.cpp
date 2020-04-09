@@ -617,12 +617,6 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 		return moves.back();
 	}
 	for (auto m : moves) {
-
-		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
-			printf_s("**** XJ CORE ****\n");
-			exit(1);
-		}
-
 		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
 			printf_s("[°¡] AIÀ—À˜π ’œ(makeMove)£¨≥Ã–Ú“—÷’÷π°£\n");
 			exit(1);
@@ -663,12 +657,6 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 	int hashf = hashfALPHA;
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
-
-		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
-			printf_s("**** XJ MIN ****\n");
-			exit(1);
-		}
-
 		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
 			printf_s("[°¡] AIÀ—À˜π ’œ(makeMove)£¨≥Ã–Ú“—÷’÷π°£\n");
 			exit(1);
@@ -714,12 +702,6 @@ int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
 	int hashf = hashfBETA;
 	vector<Move> moves = createMoves(chessboard);
 	for (auto m : moves) {
-
-		if (!chessboard.inChessboard(m.x, m.y) || !chessboard.isBlank(m.x, m.y)) {
-			printf_s("**** XJ MIN ****\n");
-			exit(1);
-		}
-
 		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
 			printf_s("[°¡] AIÀ—À˜π ’œ(makeMove)£¨≥Ã–Ú“—÷’÷π°£\n");
 			exit(1);

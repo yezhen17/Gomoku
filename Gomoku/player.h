@@ -18,6 +18,7 @@ enum class Operation {
 	WITHDRAW = 3,	// 悔棋
 	TIPS = 4,		// 提示
 	EXIT = 5,		// 退出
+	RECORD = 6,		// 输出棋局记录
 };
 
 /***************

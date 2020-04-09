@@ -132,7 +132,7 @@ void Game::start() {
 					printf_s("[√] 游戏已结束，请键入<newblack>/<newwhite>以开始新对局，或键入<withdraw>以悔棋。\n");
 					continue;
 				}
-				if (stage != Stage::DEFAULT) {
+				if (stage == Stage::DEFAULT) {
 					printf_s("[×] 对局未开始，请键入<newblack>/<newwhite>以开始对局。\n");
 					continue;
 				}
@@ -141,6 +141,18 @@ void Game::start() {
 			if (operation == Operation::EXIT) {
 				printf_s("[√] 已退出游戏。\n");
 				exit(0);							// 退出程序
+			}
+			// <record>
+			if (operation == Operation::RECORD) {
+				if (stage == Stage::UNDERWAY || stage == Stage::GAMEOVER) {
+					if (!printChessRecord(move.x))
+						printf_s("[×] 棋局未进行至该步（当前步数：第%d步），请重新输入。\n", getCurrentStep());
+					continue;
+				}
+				if (stage == Stage::DEFAULT) {
+					printf_s("[×] 对局未开始，请键入<newblack>/<newwhite>以开始对局。\n");
+					continue;
+				}
 			}
 		}
 		// *** AI进行决策 ***
@@ -187,6 +199,7 @@ void Game::start() {
 void Game::describe() {
 	printf_s("************* 五子棋人机对弈  Ver 0.1 *************\n\n");
 	printf_s("<newblack>: 电脑持黑先手  <move x y>: 落子  <tips>: 提示\n");
-	printf_s("<newwhite>: 电脑持白后手  <withdraw>: 悔棋  <exit>: 退出\n\n");
+	printf_s("<newwhite>: 电脑持白后手  <withdraw>: 悔棋  <exit>: 退出\n");
+	printf_s("<record x>: 输出棋局记录（正数-正数步数 负数-倒数步数 0-所有记录）\n\n");
 	return;
 }

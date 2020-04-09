@@ -258,15 +258,27 @@ void Chessboard::printChessboard() {
 
 /***************
 * [函数] 打印棋盘记录
-* 参数  步数索引（负数则倒数）
+* 参数  步数索引（负数则倒数，0则所有）
 * 返回  true - 打印成功, false - 打印失败
 ***************/
 bool Chessboard::printChessRecord(int step) {
-	if (step <= 0)
-		step += (chessRecord.size() + 1);
-	if (step <= 0 || step > int(chessRecord.size()))
-		return false;
 	char label[20];
+	// 输出所有记录
+	if (step == 0) {
+		for (int i = 1; i <= chessRecord.size(); i++) {
+			sprintf_s(label, "【第%d步】", i);
+			if (i & 1)
+				printf("%-12s ○ → (%X, %X)\n", label, chessRecord[i - 1].x, chessRecord[i - 1].y);
+			else
+				printf("%-12s ● → (%X, %X)\n", label, chessRecord[i - 1].x, chessRecord[i - 1].y);
+		}
+		return true;
+	}
+	// 输出特定步数记录
+	if (step < 0)
+		step += (chessRecord.size() + 1);
+	if (step < 1 || step > int(chessRecord.size()))
+		return false;
 	sprintf_s(label, "【第%d步】", step);
 	if (step & 1)
 		printf("%-12s ○ → (%X, %X)\n", label, chessRecord[step - 1].x, chessRecord[step - 1].y);

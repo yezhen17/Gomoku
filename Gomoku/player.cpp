@@ -57,6 +57,10 @@ void Player::getUserInput(Chess chess) {
 			operation = Operation::EXIT;
 			return;
 		}
+		if (strcmp(order, "record") == 0) {
+			operation = Operation::RECORD;
+			return;
+		}
 		// 重新输入
 		printf_s("%s 非法格式，请重输操作:", icon);
 	}
