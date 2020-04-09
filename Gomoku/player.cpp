@@ -31,6 +31,7 @@ void Player::getUserInput(Chess chess) {
 		// 获取用户输入
 		move.x = move.y = 0;
 		cin.getline(buffer, BUFFER_LENGTH);
+		cin.clear();
 		sscanf_s(buffer, "%s %X %X", order, sizeof(order), &move.x, &move.y);
 		// 匹配操作
 		if (strcmp(order, "newblack") == 0) {

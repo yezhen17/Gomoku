@@ -147,6 +147,16 @@ void Game::start() {
 				if (stage == Stage::UNDERWAY || stage == Stage::GAMEOVER) {
 					if (!printChessRecord(move.x))
 						printf_s("[×] 棋局未进行至该步（当前步数：第%d步），请重新输入。\n", getCurrentStep());
+					// 追加打印比赛结果
+					if (move.x == 0 && stage == Stage::GAMEOVER) {	// 打印获胜信息
+						printf_s("%-12s", "【游戏结束】 ");
+						if (winner == Chess::BLACK)
+							printf_s("○ 获胜！\n");
+						else if (winner == Chess::WHITE)
+							printf_s("● 获胜！\n");
+						else
+							printf_s("和棋！\n");
+					}
 					continue;
 				}
 				if (stage == Stage::DEFAULT) {

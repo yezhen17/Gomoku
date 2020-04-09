@@ -8,6 +8,7 @@ using namespace std;
 * [函数] 构造函数
 ***************/
 Robot::Robot() {
+	// 数据初始化
 	black_regex[0] = std::regex("11111");
 	
 	black_regex[1] = std::regex("011110");
@@ -74,6 +75,8 @@ Robot::Robot() {
 	cost_opp[9] = 1000;
 	cost_opp[10] = 1000;
 	cost_opp[11] = 100;
+	// 设置定时器
+	timer.reset(THRESHOLD_TIME);
 	return;
 }
 
@@ -89,9 +92,15 @@ Robot::~Robot() {
 * 参数  Chessboard& chessboard: 棋盘, Chess chess: 棋色
 ***************/
 Move Robot::getRobotDecision(Chessboard& chessboard) {
-	// 首步 - 天元
+	// 提示信息
+	chess = chessboard.getCurrentChess();	// 记录所执棋色
+	if (chess == Chess::BLACK)
+		printf_s("[○] AI正在决策，请稍等...\n");
+	else
+		printf_s("[●] AI正在决策，请稍等...\n");
+	// 预设下法
 	if (chessboard.getCurrentStep() == 1)
-		return Move((GRID_NUM + 1) >> 1, (GRID_NUM + 1) >> 1);
+		return Move((GRID_NUM + 1) >> 1, (GRID_NUM + 1) >> 1);	// 天元
 	if (chessboard.getCurrentStep() == 3) {
 		Move second_move = chessboard.getMove(2);
 		if (second_move.x == 8 && abs(second_move.y - 8) == 1 || second_move.y == 8 && abs(second_move.x - 8) == 1) {
@@ -123,7 +132,6 @@ Move Robot::getRobotDecision(Chessboard& chessboard) {
 			return Move(x - 1, y - 1);
 	}
 	// 进行搜索
-	chess = chessboard.getCurrentChess();	// 记录所执棋色
 	return searchMove(chessboard);
 }
 
@@ -154,8 +162,8 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 		res.push_back(best);
 		return res;
 	}
-	for (int i = 0; i < moves.size(); i++) {
-		for (int j = 0; j < moves.size() - i - 1; j++) {
+	for (int i = 0; i < int(moves.size()); i++) {
+		for (int j = 0; j < int(moves.size()) - i - 1; j++) {
 			if (evals[j] < evals[j + 1]) {
 				Move tmp = moves[j + 1];
 				moves[j + 1] = moves[j];
@@ -609,31 +617,47 @@ int Robot::evaluate(Chessboard& chessboard) {
 * 使用α-β剪枝
 ***************/
 Move Robot::searchMove(Chessboard& chessboard)  {
-	int depth = MAX_DEPTH, a = MIN_VALUE, b = MAX_VALUE;
+	bool flag = true;
+	int depth = 0, a = MIN_VALUE, b = MAX_VALUE;
 	int max_value = MIN_VALUE, tmp_value = 0;
-	Move move(0, 0);
+	Move move(0, 0), result(0, 0);
 	vector<Move> moves = createMoves(chessboard);
 	if (moves.size() == 1) {
 		return moves.back();
 	}
-	for (auto m : moves) {
-		if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
-			printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
-			exit(1);
+	// *** 循环迭代 ***
+	timer.start();	// 设定计时器起始点
+	while (flag) {
+		depth += 2;		// 迭代加深
+		flag = true;	// 标记重置
+		for (auto m : moves) {
+			// 层数时间检查
+			if ((depth > MAX_DEPTH) || (depth > MIN_DEPTH && !timer.check()))  {
+				flag = false;
+				break;
+			}
+			// 递归搜索
+			if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
+				printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
+				exit(1);
+			}
+			tmp_value = minValue(chessboard, depth - 1, a, b);
+			if (chessboard.unMakeMove() != Status::S_OK) {
+				printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
+				exit(1);
+			}
+			// 变量更新
+			if (tmp_value > max_value) {
+				max_value = tmp_value;
+				move = m;
+			}
+			if (max_value > a)
+				a = max_value;
 		}
-		tmp_value = minValue(chessboard, depth - 1, a, b);
-		if (chessboard.unMakeMove() != Status::S_OK) {
-			printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
-			exit(1);
-		}
-		if (tmp_value > max_value) {
-			max_value = tmp_value;
-			move = m;
-		}
-		if (max_value > a)
-			a = max_value;
+		if (flag)
+			result = move;
 	}
-	return move;
+	return result;
 }
 
 /***************

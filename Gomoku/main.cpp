@@ -10,4 +10,5 @@ using namespace std;
 int main() {
 	Game game;		// 创建游戏实例
 	game.start();	// 开始运行游戏
+	return 0;
 }
