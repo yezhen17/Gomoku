@@ -149,7 +149,7 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 		}
 		evals.push_back(eval);
 	}
-	if (max >= 1000) {
+	if (max >= 10000) {
 		vector<Move> res;
 		res.push_back(best);
 		return res;
@@ -166,13 +166,28 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 			}
 		}
 	}
-	if (max >= 200) {
+	if (max >= 2000) {
 		for (int i = moves.size() - 1; i >= 0; i--) {
-			if (evals[i] < 100)
+			if (evals[i] < 1000)
 				moves.pop_back();
 		}
 	}
+	/*else if (max == 1000) {
+		for (int i = moves.size() - 1; i >= 0; i--) {
+			if (evals[i] < 1000)
+				moves.pop_back();
+		}
+	}
+	else if (max > 0) {
+		for (int i = moves.size() - 1; i >= 0; i--) {
+			if (evals[i] == 0)
+				moves.pop_back();
+		}
+	}*/
 	
+	/*for (const auto m : moves) {
+		cout << m.x << " " << m.y << "\n";
+	}*/
 	return moves;
 }
 
@@ -201,7 +216,9 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 	int right_second[4] = { 0, 0, 0, 0 };
 
 	int oppo_whole[4] = { 0, 0, 0, 0 };
-	bool oppo_both_open[4] = { true, true, true, true };
+	int oppo_second_left[4] = { 0, 0, 0, 0 };
+	int oppo_second_right[4] = { 0, 0, 0, 0 };
+	int oppo_both_open[4] = { 2, 2, 2, 2 };
 
 
 	char *c = &chessboard.horizontals[x - 1][y - 1];
@@ -242,14 +259,28 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		--e;
 	}
 	if (*e != '0') {
-		oppo_both_open[0] = false;
+		oppo_both_open[0]--;
+	}
+	else {
+		--e;
+		while (*e == oppo) {
+			++oppo_second_left[0];
+			--e;
+		}
 	}
 	while (*f == oppo) {
 		++oppo_whole[0];
 		++f;
 	}
 	if (*f != '0') {
-		oppo_both_open[0] = false;
+		oppo_both_open[0]--;
+	}
+	else {
+		++f;
+		while (*f == oppo) {
+			++oppo_second_right[0];
+			++f;
+		}
 	}
 
 	c = &chessboard.verticals[y - 1][x - 1];
@@ -290,14 +321,28 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		--e;
 	}
 	if (*e != '0') {
-		oppo_both_open[1] = false;
+		oppo_both_open[1]--;
+	}
+	else {
+		--e;
+		while (*e == oppo) {
+			++oppo_second_left[1];
+			--e;
+		}
 	}
 	while (*f == oppo) {
 		++oppo_whole[1];
 		++f;
 	}
 	if (*f != '0') {
-		oppo_both_open[1] = false;
+		oppo_both_open[1]--;
+	}
+	else {
+		++f;
+		while (*f == oppo) {
+			++oppo_second_right[1];
+			++f;
+		}
 	}
 
 	if (x + y <= GRID_NUM + 1) {
@@ -343,14 +388,28 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		--e;
 	}
 	if (*e != '0') {
-		oppo_both_open[2] = false;
+		oppo_both_open[2]--;
+	}
+	else {
+		--e;
+		while (*e == oppo) {
+			++oppo_second_left[2];
+			--e;
+		}
 	}
 	while (*f == oppo) {
 		++oppo_whole[2];
 		++f;
 	}
 	if (*f != '0') {
-		oppo_both_open[2] = false;
+		oppo_both_open[2]--;
+	}
+	else {
+		++f;
+		while (*f == oppo) {
+			++oppo_second_right[2];
+			++f;
+		}
 	}
 
 	if (y - x <= 0) {
@@ -396,17 +455,32 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		--e;
 	}
 	if (*e != '0') {
-		oppo_both_open[3] = false;
+		oppo_both_open[3]--;
+	}
+	else {
+		--e;
+		while (*e == oppo) {
+			++oppo_second_left[3];
+			--e;
+		}
 	}
 	while (*f == oppo) {
 		++oppo_whole[3];
 		++f;
 	}
 	if (*f != '0') {
-		oppo_both_open[3] = false;
+		oppo_both_open[3]--;
+	}
+	else {
+		++f;
+		while (*f == oppo) {
+			++oppo_second_right[3];
+			++f;
+		}
 	}
 
-	int sum_self = 0;
+	bool priority[4] = { false, false, false, false };
+	int d4_opp = 0;
 	int d4 = 0;
 	int a3 = 0;
 	int weak = 0;
@@ -420,25 +494,32 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		bool both_block = left_block[i] && right_block[i];
 
 		//  冲四活三or双活三权值比死4低，不合理，待改进
-		if (seq_same == 4) sum_self = 10000000; // 己方5
-		else if (oppo_whole[i] == 4) sum_self = 1000000; // 对方5
-		else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && seq_same == 2) sum_self = 100000; // 己方1011101
-		else if (seq_same == 3 && !either_block) sum_self = 100000; // 己方活4
-		else if (oppo_whole[i] == 3 && oppo_both_open[i]) sum_self = 10000; // 对方活4
+		if (seq_same == 4) return 10000000; // 己方5
+		else if (oppo_whole[i] == 4) priority[1] = true; // 对方5
+		// else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && seq_same == 2) sum_self = 100000; // 己方1011101	
+		else if (seq_same == 3 && !either_block) priority[2] = true; // 己方活4
+		else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && !either_block) priority[2] = true;
+		else if (oppo_whole[i] == 3 && oppo_both_open[i] == 2) priority[3] = true; // 对方活4
+		else if (oppo_whole[i] == 3 && oppo_both_open[i] == 1) ++d4_opp;
+		else if (oppo_whole[i] + oppo_second_left[i] == 3 || oppo_whole[i] + oppo_second_right[i] == 3) ++d4_opp;
 		else if (seq_same == 3 && !both_block && either_block) ++d4; // 己方死4
 		else if (seq_same == 2 && (seq_gap1_same_left > 2 || seq_gap1_same_right > 2))  ++d4; // 己方死4
 		else if (seq_same == 2 && !either_block) ++a3; // 己方活3
-		else if (seq_same == 1 && (seq_gap1_same_left > 2 && !left_block_second[i] && !right_block[i]
-			|| seq_gap1_same_right > 2 && !right_block_second[i] && !left_block[i])) ++a3; //己方活3
+		else if (seq_same < 2 && (seq_gap1_same_left > 1 && !left_block_second[i] && !right_block[i]
+			|| seq_gap1_same_right > 1 && !right_block_second[i] && !left_block[i])) ++a3; //己方活3
 
-		// else if (seq_same == 1 && !left_block_second[i] && !right_block_second[i]) ++weak; // 己方活2
-
+		else if (seq_gap2_same > 0 && !left_block_second[i] && !right_block_second[i]) ++weak; // 己方活2
+		
 	}
-	if (sum_self) return sum_self;
-	if (d4 > 1) return 1000;
-	if (d4 && a3) return 1000;
-	if (a3 || d4) return (a3 + d4) * 100;
-	return weak * 10;
+	if (priority[1]) return 1000000;
+	if (priority[2]) return 100000;
+	if (d4 > 1) return 100000;
+	if (d4 && a3) return 100000;
+	if (priority[3]) return 10000;
+	if (d4_opp > 1) return 10000;
+	if (a3 || d4) return (a3 + d4) * 1000;
+	if (d4_opp) return 1000;
+	return weak * 100;
 }
 
 /***************
