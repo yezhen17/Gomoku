@@ -9,22 +9,6 @@ using namespace std;
 ***************/
 Robot::Robot() {
 	// 数据初始化
-	black_regex[0] = std::regex("11111");
-	
-	black_regex[1] = std::regex("011110");
-	black_regex[2] = std::regex("11110|01111|11011|11101|10111");
-
-	black_regex[3] = std::regex("001110|011100|011010|010110");
-	black_regex[4] = std::regex("01110|1(110|101|011)0|0(101|011|110)1");
-	black_regex[5] = std::regex("001100|01010|010010");
-	white_regex[0] = std::regex("22222");
-	white_regex[1] = std::regex("022220");
-	white_regex[2] = std::regex("22220|02222|22022|22202|20222");
-
-	white_regex[3] = std::regex("002220|022200|022020|020220");
-	white_regex[4] = std::regex("02220|2(220|202|022)0|0(202|022|220)2");
-	white_regex[5] = std::regex("002200|02020|020020");
-	// black_regex[6] = std::regex("[2#]11000|[2#]10100|[2#]10010|00011[2#]|00101[2#]|01001[2#]");
 	black_p[0] = pattern(".11111", 5);
 	black_p[1] = pattern(".011110", 6);
 	black_p[2] = pattern(".11110", 5);
@@ -37,6 +21,17 @@ Robot::Robot() {
 	black_p[9] = pattern(".011010", 6);
 	black_p[10] = pattern(".010110", 6);
 	black_p[11] = pattern(".001100", 6);
+	/*
+	black_p[11] = pattern(".11100", 5);
+	black_p[12] = pattern(".00111", 5);
+	black_p[13] = pattern(".01101", 5);
+	black_p[14] = pattern(".01011", 5);
+	black_p[15] = pattern(".11010", 5);
+	black_p[16] = pattern(".10110", 5);
+	black_p[17] = pattern(".01110", 5);
+	black_p[18] = pattern(".001100", 6);
+	*/
+
 	white_p[0] = pattern(".22222", 5);
 	white_p[1] = pattern(".022220", 6);
 	white_p[2] = pattern(".22220", 5);
@@ -49,6 +44,16 @@ Robot::Robot() {
 	white_p[9] = pattern(".022020", 6);
 	white_p[10] = pattern(".020220", 6);
 	white_p[11] = pattern(".002200", 6);
+	/*
+	white_p[11] = pattern(".22200", 5);
+	white_p[12] = pattern(".00222", 5);
+	white_p[13] = pattern(".02202", 5);
+	white_p[14] = pattern(".02022", 5);
+	white_p[15] = pattern(".22020", 5);
+	white_p[16] = pattern(".20220", 5);
+	white_p[17] = pattern(".02220", 5);
+	white_p[18] = pattern(".002200", 6);
+	*/
 
 	cost_self[0] = 300000; // 五
 	cost_self[1] = 10000; 
@@ -174,28 +179,18 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 			}
 		}
 	}
+	if (max == 10000) {
+		for (int i = moves.size() - 1; i >= 0; i--) {
+			if (evals[i] < 10000)
+				moves.pop_back();
+		}
+	}
 	if (max >= 2000) {
 		for (int i = moves.size() - 1; i >= 0; i--) {
 			if (evals[i] < 1000)
 				moves.pop_back();
 		}
 	}
-	/*else if (max == 1000) {
-		for (int i = moves.size() - 1; i >= 0; i--) {
-			if (evals[i] < 1000)
-				moves.pop_back();
-		}
-	}
-	else if (max > 0) {
-		for (int i = moves.size() - 1; i >= 0; i--) {
-			if (evals[i] == 0)
-				moves.pop_back();
-		}
-	}*/
-	
-	/*for (const auto m : moves) {
-		cout << m.x << " " << m.y << "\n";
-	}*/
 	return moves;
 }
 
@@ -504,7 +499,6 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		//  冲四活三or双活三权值比死4低，不合理，待改进
 		if (seq_same == 4) return 10000000; // 己方5
 		else if (oppo_whole[i] == 4) priority[1] = true; // 对方5
-		// else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && seq_same == 2) sum_self = 100000; // 己方1011101	
 		else if (seq_same == 3 && !either_block) priority[2] = true; // 己方活4
 		else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && !either_block) priority[2] = true;
 		else if (oppo_whole[i] == 3 && oppo_both_open[i] == 2) priority[3] = true; // 对方活4
@@ -549,61 +543,54 @@ int Robot::evaluate(Chessboard& chessboard) {
 		memcpy(cost_white, cost_self, 20 * sizeof(int));
 	}
 	
-	std::regex exist_regex("[12]");
 	for (int i = 0; i < GRID_NUM; i++) {
-		if (!std::regex_search(chessboard.horizontals[i], exist_regex))
-			continue;
-		for (int j = bar[chessboard.horizontal_piece_count[0][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.horizontal_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.horizontals[i], black_p[j].m, GRID_NUM) * cost_black[j];
 		}
-		for (int j = bar[chessboard.horizontal_piece_count[1][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.horizontal_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
 			white_value += KMP_matcher(white_p[j].P, chessboard.horizontals[i], white_p[j].m, GRID_NUM) * cost_white[j];
 		}
 	}
 	for (int i = 0; i < GRID_NUM; i++) {
-		if (!std::regex_search(chessboard.verticals[i], exist_regex))
-			continue;
-		for (int j = bar[chessboard.vertical_piece_count[0][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.vertical_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.verticals[i], black_p[j].m, GRID_NUM) * cost_black[j];
 		}
-		for (int j = bar[chessboard.vertical_piece_count[1][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.vertical_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
 			white_value += KMP_matcher(white_p[j].P, chessboard.verticals[i], white_p[j].m, GRID_NUM) * cost_white[j];
 		}	
 	}
 	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (!std::regex_search(chessboard.up_diagonals[i], exist_regex))
-			continue;
 		int len = 15 - abs(14 - i);
-		for (int j = bar[chessboard.updiagonal_piece_count[0][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.updiagonal_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.up_diagonals[i], black_p[j].m, len) * cost_black[j];
 		}
-		for (int j = bar[chessboard.updiagonal_piece_count[1][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.updiagonal_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
 			white_value += KMP_matcher(white_p[j].P, chessboard.up_diagonals[i], white_p[j].m, len) * cost_white[j];
 		}
 	}
 	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
-		if (!std::regex_search(chessboard.down_diagonals[i], exist_regex))
-			continue;
 		int len = 15 - abs(14 - i);
-		for (int j = bar[chessboard.downdiagonal_piece_count[0][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.downdiagonal_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
 			black_value += KMP_matcher(black_p[j].P, chessboard.down_diagonals[i], black_p[j].m, len) * cost_black[j];
 		}
-		for (int j = bar[chessboard.downdiagonal_piece_count[1][i + 1]]; j < 12; j++)
+		for (int j = bar[chessboard.downdiagonal_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
 			white_value += KMP_matcher(white_p[j].P, chessboard.down_diagonals[i], white_p[j].m, len) * cost_white[j];
 		}
 	}
-	if (chess == Chess::BLACK)
+	if (chess == Chess::BLACK) {
 		return (black_value - white_value);
-	else
+	}
+	else {
 		return (white_value - black_value);
+	}
 }
 //由于五子棋搜索分支庞大，通常无法直接搜索到胜负终局，当搜索到一定深度时需要根据局面返回搜索结果。
 //参考资料：
