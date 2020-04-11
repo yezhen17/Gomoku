@@ -611,7 +611,6 @@ int Robot::evaluate(Chessboard& chessboard) {
 //裴博文. 五子棋人工智能权重估值算法[J]. 电脑编程技巧与维护, 2008(6):69-75.
 //https://www.cnblogs.com/maxuewei2/p/4825520.html
 
-
 /***************
 * [函数] 搜索算法
 * 使用α-β剪枝
@@ -628,8 +627,11 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 	// *** 循环迭代 ***
 	timer.start();	// 设定计时器起始点
 	while (flag) {
-		depth += 2;		// 迭代加深
-		flag = true;	// 标记重置
+		depth += 2;			// 迭代加深
+		a = MIN_VALUE;
+		b = MAX_VALUE;
+		max_value = MIN_VALUE;
+		flag = true;		// 标记重置
 		for (auto m : moves) {
 			// 层数时间检查
 			if ((depth > MAX_DEPTH) || (depth > MIN_DEPTH && !timer.check()))  {
