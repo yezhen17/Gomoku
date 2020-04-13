@@ -141,71 +141,83 @@ Status Chessboard::unMakeMove() {
 * 返回  G_BLACK | G_WHITE | G_DRAW | G_CONTINUE
 ***************/
 Status Chessboard::gameOver() {
-	// 正则表达式判断是否出现五子连珠
 	if (chessRecord.empty())
 		return Status::G_CONTINUE;
 	Move last = chessRecord.back();
-	std::regex black_win("11111");
-	std::regex white_win("22222");
-	
-	int y = last.x, x = last.y;
-	char hrz[10] = "";
-	char vtc[10] = "";
-	char upd[10] = "";
-	char dnd[10] = "";
-	int xi = x - 4 < 1 ? 1 - x : -4;
-	int xj = x + 4 < GRID_NUM ? 4 : GRID_NUM - x;
-	int i = 0;
-	for (int j = xi; j <= xj; j++) {
-		hrz[i++] = horizontals[y - 1][x + j];
-		//cout << x + j << " " << y << endl;
+	int x = last.x, y = last.y;
+
+	// 通过计算和上一落点四个方向上连续相邻的同色棋子数来判断是否游戏结束
+	int adjacent_same_color[4] = { 0, 0, 0, 0 };
+	char same;
+	Status res;
+	if (getCurrentChess() == Chess::BLACK) {
+		same = '2';
+		res = Status::G_WHITE;
 	}
-	int yi = y - 4 < 1 ? 1 - y : -4;
-	int yj = y + 4 < GRID_NUM ? 4 : GRID_NUM - y;
-	i = 0;
-	for (int j = yi; j <= yj; j++) {
-		vtc[i++] = verticals[x - 1][y + j];
-		//cout << x << " " << y + j << endl;
+	else {
+		same = '1';
+		res = Status::G_BLACK;
 	}
-	int ui = xi < -yj ? -yj : xi;
-	int uj = xj < -yi ? xj : -yi;
-	i = 0;
-	for (; ui <= uj; ui++) {
-		upd[i++] = chess2char(chessboard[y - ui][x + ui]);
-		//cout <<x + ui << " " << y - ui << endl;
+
+	char *c = &horizontals[x - 1][y - 1];
+	char *d = c + 2;
+	while (*c == same) {
+		++adjacent_same_color[0];
+		--c;
 	}
-	int di = xi < yi ? yi : xi;
-	int dj = xj < yj ? xj : yj;
-	i = 0;
-	for (; di <= dj; di++) {
-		dnd[i++] = chess2char(chessboard[y + di][x + di]);
-		//cout << x + di << " " << y + di << endl;
+	while (*d == same) {
+		++adjacent_same_color[0];
+		++d;
 	}
-	
-	if (std::regex_search(hrz, black_win)) {
-		return Status::G_BLACK;
+
+	c = &verticals[y - 1][x - 1];
+	d = c + 2;
+	while (*c == same) {
+		++adjacent_same_color[1];
+		--c;
 	}
-	if (std::regex_search(hrz, white_win)) {
-		return Status::G_WHITE;
+	while (*d == same) {
+		++adjacent_same_color[1];
+		++d;
 	}
-	if (std::regex_search(vtc, black_win)) {
-		return Status::G_BLACK;
+
+	if (x + y <= GRID_NUM + 1) {
+		c = &up_diagonals[x + y - 2][y - 1];
 	}
-	if (std::regex_search(vtc, white_win)) {
-		return Status::G_WHITE;
+	else {
+		c = &up_diagonals[x + y - 2][GRID_NUM - x];
 	}
-	if (std::regex_search(upd, black_win)) {
-		return Status::G_BLACK;
+	d = c + 2;
+	while (*c == same) {
+		++adjacent_same_color[2];
+		--c;
 	}
-	if (std::regex_search(upd, white_win)) {
-		return Status::G_WHITE;
+	while (*d == same) {
+		++adjacent_same_color[2];
+		++d;
 	}
-	if (std::regex_search(dnd, black_win)) {
-		return Status::G_BLACK;
+
+	if (y - x <= 0) {
+		c = &down_diagonals[y - x + GRID_NUM - 1][y - 1];
 	}
-	if (std::regex_search(dnd, white_win)) {
-		return Status::G_WHITE;
+	else {
+		c = &down_diagonals[y - x + GRID_NUM - 1][x - 1];
 	}
+	d = c + 2;
+	while (*c == same) {
+		++adjacent_same_color[3];
+		--c;
+	}
+	while (*d == same) {
+		++adjacent_same_color[3];
+		++d;
+	}
+
+	for (int i = 0; i < 4; i++) {
+		if (adjacent_same_color[i] > 3)
+			return res;
+	}
+
 	if (getCurrentStep() > GRID_NUM * GRID_NUM) {
 		return Status::G_DRAW; // 和局
 	}
@@ -276,7 +288,7 @@ bool Chessboard::printChessRecord(int step) {
 	}
 	// 输出特定步数记录
 	if (step < 0)
-		step += (chessRecord.size() + 1);
+		step += int(chessRecord.size() + 1);
 	if (step < 1 || step > int(chessRecord.size()))
 		return false;
 	sprintf_s(label, "【第%d步】", step);

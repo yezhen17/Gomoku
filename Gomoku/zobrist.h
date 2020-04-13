@@ -7,7 +7,7 @@
 #define hashfBETA 2
 
 typedef long long u64;
-const int TABLE_SIZE_MASK = (1 << 20) - 1;
+const int TABLE_SIZE_MASK = (1 << 20) - 1;  // table大小为2的倍数，因为&运算比除法快
 const int VAL_UNKNOWN = 1;
 const int GRID_NUM_ = 15;
 

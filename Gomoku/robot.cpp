@@ -8,7 +8,7 @@ using namespace std;
 * [函数] 构造函数
 ***************/
 Robot::Robot() {
-	// 数据初始化
+	// 模式初始化
 	black_p[0] = pattern(".11111", 5);
 	black_p[1] = pattern(".011110", 6);
 	black_p[2] = pattern(".11110", 5);
@@ -55,20 +55,21 @@ Robot::Robot() {
 	white_p[18] = pattern(".002200", 6);
 	*/
 
+	// 模式估值
 	cost_self[0] = 300000; // 五
-	cost_self[1] = 10000; 
-	cost_self[2] = 1000; 
-	cost_self[3] = 1000; 
-	cost_self[4] = 1000; 
-	cost_self[5] = 1000; 
-	cost_self[6] = 1000; 
-	cost_self[7] = 1000; 
-	cost_self[8] = 1000; 
-	cost_self[9] = 1000;
-	cost_self[10] = 1000;
-	cost_self[11] = 100;
+	cost_self[1] = 10000; // 活四
+	cost_self[2] = 1000; // 冲四
+	cost_self[3] = 1000; // 冲四
+	cost_self[4] = 1000; // 冲四
+	cost_self[5] = 1000; // 冲四
+	cost_self[6] = 1000; // 冲四
+	cost_self[7] = 1000; // 活三
+	cost_self[8] = 1000; // 活三
+	cost_self[9] = 1000; // 活三
+	cost_self[10] = 1000; // 活三
+	cost_self[11] = 100; // 活二
 
-	cost_opp[0] = 300000; // 五
+	cost_opp[0] = 300000;
 	cost_opp[1] = 10000;
 	cost_opp[2] = 1000;
 	cost_opp[3] = 1000;
@@ -80,6 +81,7 @@ Robot::Robot() {
 	cost_opp[9] = 1000;
 	cost_opp[10] = 1000;
 	cost_opp[11] = 100;
+
 	// 设置定时器
 	timer.reset(THRESHOLD_TIME);
 	return;
@@ -155,18 +157,22 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 	Chess cur = chessboard.getCurrentChess();
 	int max = 0;
 	for (const auto mv : moves) {
-		int eval = evaluatePoint(chessboard, mv, cur);
+		int eval = evaluatePoint(chessboard, mv, cur); // 单点评估
 		if (eval > max) {
 			max = eval;
 			best = mv;
 		}
 		evals.push_back(eval);
 	}
-	if (max >= 10000) {
+
+	// 必走棋
+	if (max >= ALIVE_FOUR_OPPO) {
 		vector<Move> res;
 		res.push_back(best);
 		return res;
 	}
+
+	// 排序
 	for (int i = 0; i < int(moves.size()); i++) {
 		for (int j = 0; j < int(moves.size()) - i - 1; j++) {
 			if (evals[j] < evals[j + 1]) {
@@ -179,15 +185,11 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 			}
 		}
 	}
-	if (max == 10000) {
-		for (int i = moves.size() - 1; i >= 0; i--) {
-			if (evals[i] < 10000)
-				moves.pop_back();
-		}
-	}
-	if (max >= 2000) {
-		for (int i = moves.size() - 1; i >= 0; i--) {
-			if (evals[i] < 1000)
+
+	// 若有两个回合之内的杀棋，则可以缩小搜索范围
+	if (max >= (THREE_OR_DEAD_FOUR_OURS << 1)) {
+		for (int i = (int)moves.size() - 1; i >= 0; i--) {
+			if (evals[i] < THREE_OR_DEAD_FOUR_OURS)
 				moves.pop_back();
 		}
 	}
@@ -209,21 +211,25 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		oppo = '1';
 	}
 	int x = mv.x, y = mv.y;
-	bool left_block[4] = { true, true, true, true };
-	bool right_block[4] = { true, true, true, true };
-	bool left_block_second[4] = { true, true, true, true };
-	bool right_block_second[4] = { true, true, true, true };
-	int left_first[4] = { 0, 0, 0, 0 };
-	int left_second[4] = { 0, 0, 0, 0 };
-	int right_first[4] = { 0, 0, 0, 0 };
-	int right_second[4] = { 0, 0, 0, 0 };
 
+	// 己方棋子用于判断棋型的数据
+	bool left_block[4] = { true, true, true, true }; //  连续同色后是否为异色或边界（一侧）
+	bool right_block[4] = { true, true, true, true }; //  连续同色后是否为异色或边界（另一侧）
+	bool left_block_second[4] = { true, true, true, true }; //  连续同色-空白-连续同色后是否为异色或边界（一侧）
+	bool right_block_second[4] = { true, true, true, true }; //  连续同色-空白-连续同色后是否为异色或边界（另一侧）
+	int left_first[4] = { 0, 0, 0, 0 };  //  第一段连续同色数（一侧）
+	int left_second[4] = { 0, 0, 0, 0 };  //  第二段连续同色数（一侧）
+	int right_first[4] = { 0, 0, 0, 0 };  //  第一段连续同色数（另一侧）
+	int right_second[4] = { 0, 0, 0, 0 };  //  第二段连续同色数（另一侧）
+
+	// 对方棋子的类似数据
 	int oppo_whole[4] = { 0, 0, 0, 0 };
 	int oppo_second_left[4] = { 0, 0, 0, 0 };
 	int oppo_second_right[4] = { 0, 0, 0, 0 };
 	int oppo_both_open[4] = { 2, 2, 2, 2 };
 
-
+	// 以下均为这些数组的计算
+	// 水平行
 	char *c = &chessboard.horizontals[x - 1][y - 1];
 	char *d = c + 2;
 	char *e = c, *f = d;
@@ -286,6 +292,7 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		}
 	}
 
+	// 竖直列
 	c = &chessboard.verticals[y - 1][x - 1];
 	d = c + 2;
 	e = c, f = d;
@@ -348,6 +355,7 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		}
 	}
 
+    // 左下-右上对角线
 	if (x + y <= GRID_NUM + 1) {
 		c = &chessboard.up_diagonals[x + y - 2][y - 1];
 	}
@@ -415,6 +423,7 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		}
 	}
 
+	// 左上-右下对角线
 	if (y - x <= 0) {
 		c = &chessboard.down_diagonals[y - x + GRID_NUM - 1][y - 1];
 	}
@@ -482,11 +491,11 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		}
 	}
 
-	bool priority[4] = { false, false, false, false };
-	int d4_opp = 0;
-	int d4 = 0;
-	int a3 = 0;
-	int weak = 0;
+	bool priority[4] = { false, false, false, false };  // 几种优先选择的棋型
+	int d4_opp = 0;  // 对方冲四
+	int d4 = 0;  // 己方冲四
+	int a3 = 0;  // 己方活三
+	int weak = 0;  // 己方活二
 	for (int i = 0; i < 4; i++) {
 		int seq_same = left_first[i] + right_first[i];
 		int seq_gap1_same_left = seq_same + left_second[i];
@@ -496,16 +505,15 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		bool either_block = left_block[i] || right_block[i];
 		bool both_block = left_block[i] && right_block[i];
 
-		//  冲四活三or双活三权值比死4低，不合理，待改进
-		if (seq_same == 4) return 10000000; // 己方5
+		if (seq_same == 4) return FIVE_OURS; // 己方5
 		else if (oppo_whole[i] == 4) priority[1] = true; // 对方5
 		else if (seq_same == 3 && !either_block) priority[2] = true; // 己方活4
-		else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && !either_block) priority[2] = true;
+		else if (seq_gap1_same_left > 2 && seq_gap1_same_right > 2 && !either_block) priority[2] = true;  // 己方同一直线双冲4
 		else if (oppo_whole[i] == 3 && oppo_both_open[i] == 2) priority[3] = true; // 对方活4
-		else if (oppo_whole[i] == 3 && oppo_both_open[i] == 1) ++d4_opp;
-		else if (oppo_whole[i] + oppo_second_left[i] == 3 || oppo_whole[i] + oppo_second_right[i] == 3) ++d4_opp;
-		else if (seq_same == 3 && !both_block && either_block) ++d4; // 己方死4
-		else if (seq_same == 2 && (seq_gap1_same_left > 2 || seq_gap1_same_right > 2))  ++d4; // 己方死4
+		else if (oppo_whole[i] == 3 && oppo_both_open[i] == 1) ++d4_opp;  // 对方冲4
+		else if (oppo_whole[i] + oppo_second_left[i] == 3 || oppo_whole[i] + oppo_second_right[i] == 3) ++d4_opp;  // 对方冲4
+		else if (seq_same == 3 && !both_block && either_block) ++d4; // 己方冲4
+		else if (seq_same == 2 && (seq_gap1_same_left > 2 || seq_gap1_same_right > 2))  ++d4; // 己方冲4
 		else if (seq_same == 2 && !either_block) ++a3; // 己方活3
 		else if (seq_same < 2 && (seq_gap1_same_left > 1 && !left_block_second[i] && !right_block[i]
 			|| seq_gap1_same_right > 1 && !right_block_second[i] && !left_block[i])) ++a3; //己方活3
@@ -513,15 +521,15 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		else if (seq_gap2_same > 0 && !left_block_second[i] && !right_block_second[i]) ++weak; // 己方活2
 		
 	}
-	if (priority[1]) return 1000000;
-	if (priority[2]) return 100000;
-	if (d4 > 1) return 100000;
-	if (d4 && a3) return 100000;
-	if (priority[3]) return 10000;
-	if (d4_opp > 1) return 10000;
-	if (a3 || d4) return (a3 + d4) * 1000;
-	if (d4_opp) return 1000;
-	return weak * 100;
+	if (priority[1]) return FIVE_OPPO;
+	if (priority[2]) return ALIVE_FOUR_OURS;
+	if (d4 > 1) return DOUBLE_FOUR_OURS;
+	if (d4 && a3) return DOUBLE_FOUR_OURS;
+	if (priority[3]) return ALIVE_FOUR_OPPO;
+	if (d4_opp > 1) return DOUBLE_FOUR_OPPO;
+	if (a3 || d4) return (a3 + d4) * THREE_OR_DEAD_FOUR_OURS;
+	if (d4_opp) return DEAD_FOUR_OPPO;
+	return weak * WEAK_OURS;
 }
 
 /***************
@@ -543,46 +551,47 @@ int Robot::evaluate(Chessboard& chessboard) {
 		memcpy(cost_white, cost_self, 20 * sizeof(int));
 	}
 	
+	// 基于KMP算法的模式匹配
 	for (int i = 0; i < GRID_NUM; i++) {
 		for (int j = bar[chessboard.horizontal_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
-			black_value += KMP_matcher(black_p[j].P, chessboard.horizontals[i], black_p[j].m, GRID_NUM) * cost_black[j];
+			black_value += KMP_matcher(black_p[j].P, black_p[j].pi, chessboard.horizontals[i], black_p[j].m, GRID_NUM) * cost_black[j];
 		}
 		for (int j = bar[chessboard.horizontal_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
-			white_value += KMP_matcher(white_p[j].P, chessboard.horizontals[i], white_p[j].m, GRID_NUM) * cost_white[j];
+			white_value += KMP_matcher(white_p[j].P, white_p[j].pi, chessboard.horizontals[i], white_p[j].m, GRID_NUM) * cost_white[j];
 		}
 	}
 	for (int i = 0; i < GRID_NUM; i++) {
 		for (int j = bar[chessboard.vertical_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
-			black_value += KMP_matcher(black_p[j].P, chessboard.verticals[i], black_p[j].m, GRID_NUM) * cost_black[j];
+			black_value += KMP_matcher(black_p[j].P, black_p[j].pi, chessboard.verticals[i], black_p[j].m, GRID_NUM) * cost_black[j];
 		}
 		for (int j = bar[chessboard.vertical_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
-			white_value += KMP_matcher(white_p[j].P, chessboard.verticals[i], white_p[j].m, GRID_NUM) * cost_white[j];
+			white_value += KMP_matcher(white_p[j].P, white_p[j].pi, chessboard.verticals[i], white_p[j].m, GRID_NUM) * cost_white[j];
 		}	
 	}
 	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
 		int len = 15 - abs(14 - i);
 		for (int j = bar[chessboard.updiagonal_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
-			black_value += KMP_matcher(black_p[j].P, chessboard.up_diagonals[i], black_p[j].m, len) * cost_black[j];
+			black_value += KMP_matcher(black_p[j].P, black_p[j].pi, chessboard.up_diagonals[i], black_p[j].m, len) * cost_black[j];
 		}
 		for (int j = bar[chessboard.updiagonal_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
-			white_value += KMP_matcher(white_p[j].P, chessboard.up_diagonals[i], white_p[j].m, len) * cost_white[j];
+			white_value += KMP_matcher(white_p[j].P, white_p[j].pi, chessboard.up_diagonals[i], white_p[j].m, len) * cost_white[j];
 		}
 	}
 	for (int i = 0; i < EFFECTIVE_DIAGONAL_NUM; i++) {
 		int len = 15 - abs(14 - i);
 		for (int j = bar[chessboard.downdiagonal_piece_count[0][i + 1]]; j < pat_num; j++)
 		{
-			black_value += KMP_matcher(black_p[j].P, chessboard.down_diagonals[i], black_p[j].m, len) * cost_black[j];
+			black_value += KMP_matcher(black_p[j].P, black_p[j].pi, chessboard.down_diagonals[i], black_p[j].m, len) * cost_black[j];
 		}
 		for (int j = bar[chessboard.downdiagonal_piece_count[1][i + 1]]; j < pat_num; j++)
 		{
-			white_value += KMP_matcher(white_p[j].P, chessboard.down_diagonals[i], white_p[j].m, len) * cost_white[j];
+			white_value += KMP_matcher(white_p[j].P, white_p[j].pi, chessboard.down_diagonals[i], white_p[j].m, len) * cost_white[j];
 		}
 	}
 	if (chess == Chess::BLACK) {

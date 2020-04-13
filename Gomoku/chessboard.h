@@ -69,7 +69,7 @@ protected:
 	}
 	// 根据棋局记录获取当前下一步数
 	inline int getCurrentStep() {
-		return (chessRecord.size() + 1);
+		return int(chessRecord.size() + 1);
 	}
 	// 根据棋局记录获取当前下一棋色
 	inline Chess getCurrentChess() {
