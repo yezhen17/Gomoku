@@ -34,7 +34,6 @@ private:
 	Role sente;				// 先行方
 	Chess winner;			// 获胜方
 	Stage stage;			// 游戏阶段
-	// TODO
-
+	Timer TIMER;		// 游戏计时器
 };
 #endif

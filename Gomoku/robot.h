@@ -7,11 +7,14 @@
 /***************
 * [常量] 定义
 ***************/
-const int MAX_VALUE = 0x3f3f3f3f;		// 极大值
-const int MIN_VALUE = -0x3f3f3f3f;		// 极小值
-const int MIN_DEPTH = 2;				// 最小搜索层数
-const int MAX_DEPTH = 6;				// 最大搜索层数
-const double THRESHOLD_TIME = 3.0;		// 搜索临界时间(秒)
+const int MAX_VALUE = 0x3f3f3f3f;			// 极大值
+const int MIN_VALUE = -0x3f3f3f3f;			// 极小值
+const int MIN_DEPTH = 2;					// 最小搜索层数
+const int MAX_DEPTH = 6;					// 最大搜索层数
+const double THRESHOLD_TIME = 3.0;			// 搜索临界时间(秒)
+const bool ITERATIVE_DEEPENING_MODE = true;	// 迭代加深模式
+// 置为 false，则将根据 MAX_DEPTH 固定搜索层数
+
 
 /***************
 * [函数] 声明

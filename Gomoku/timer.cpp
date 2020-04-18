@@ -39,3 +39,12 @@ bool Timer::check() {
 	checkClock = clock();
 	return ((checkClock - startClock) <= limitClock);
 }
+
+/***************
+* [函数] 返回经过时间
+* 返回值 经过时间(s)
+***************/
+double Timer::time() {
+	checkClock = clock();
+	return double(double(checkClock - startClock) / double(CLOCKS_PER_SEC));
+}

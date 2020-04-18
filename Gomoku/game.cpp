@@ -27,6 +27,7 @@ void Game::start() {
 	Chess chess = Chess::BLANK;
 	Operation operation = Operation::NEWBLACK;
 	Move move = Move(0, 0);
+	double TIME = -1;
 	while (true) {
 		// *** 打印游戏信息 ***
 		if (!DEBUG_MODE) system("cls");					// 清空屏幕			
@@ -43,6 +44,11 @@ void Game::start() {
 			else
 				printf_s("和棋！\n");
 		}
+		if (TIME >= 0) {
+			printf_s("[√] AI决策用时：%.3lf s.\n", TIME);
+			TIME = -1;
+		}
+		printf_s("\n");
 		// *** 用户进行决策 ***
 		chess = getCurrentChess();
 		while (true) {
@@ -124,8 +130,12 @@ void Game::start() {
 			// <tips>
 			if (operation == Operation::TIPS) {
 				if (stage == Stage::UNDERWAY) {
-					move = getRobotDecision(*this);
+					TIMER.start();
+					move = getRobotDecision(*this);						// 获取机器决策
+					TIME = TIMER.time();
 					printf_s("[√] AI建议：(%X, %X)\n", move.x, move.y);
+					printf_s("[√] AI决策用时：%.3lf s.\n", TIME);
+					TIME = -1;
 					continue;
 				}
 				if (stage == Stage::GAMEOVER) {
@@ -175,7 +185,9 @@ void Game::start() {
 			continue;
 		if (DEBUG_MODE)
 			printf_s("@ AI决策前步数：(%d)\n", getCurrentStep());
+		TIMER.start();
 		move = getRobotDecision(*this);						// 获取机器决策
+		TIME = TIMER.time();
 		if (DEBUG_MODE)
 			printf_s("@ AI决策后步数：(%d)\n", getCurrentStep());
 		// 行棋

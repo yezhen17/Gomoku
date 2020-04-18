@@ -620,7 +620,32 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 	if (moves.size() == 1) {
 		return moves.back();
 	}
-	// *** 循环迭代 ***
+	// *** 迭代固定 **
+	if (!ITERATIVE_DEEPENING_MODE) {
+		depth = MAX_DEPTH;
+		for (auto m : moves) {
+			// 递归搜索
+			if (chessboard.makeMove(m.x, m.y) != Status::S_OK) {
+				printf_s("[×] AI搜索故障(makeMove)，程序已终止。\n");
+				exit(1);
+			}
+			tmp_value = minValue(chessboard, depth - 1, a, b);
+			if (chessboard.unMakeMove() != Status::S_OK) {
+				printf_s("[×] AI搜索故障(unMakeMove)，程序已终止。\n");
+				exit(1);
+			}
+			// 变量更新
+			if (tmp_value > max_value) {
+				max_value = tmp_value;
+				move = m;
+			}
+			if (max_value > a)
+				a = max_value;
+		}
+		result = move;
+		return result;
+	}
+	// *** 迭代加深 ***
 	timer.start();	// 设定计时器起始点
 	while (flag) {
 		depth += 2;			// 迭代加深
