@@ -86,9 +86,9 @@ void Game::start() {
 						winner = Chess::BLANK;
 						stage = Stage::GAMEOVER;
 					}
-					break;
 					// 更新屏幕
 					update();
+					break;
 				}
 				if (stage == Stage::GAMEOVER) {
 					printf_s("[√] 游戏已结束，请键入<newblack>/<newwhite>以开始新对局，或键入<withdraw>以悔棋。\n");
