@@ -86,7 +86,7 @@ Status Chessboard::makeMove(const int x, const int y) {
 	for (int i = 0; i < fnum; i++)
 			if (inChessboard(x + fx[i], y + fy[i]))
 				possibleMoves[x + fx[i]][y + fy[i]]++;
-	possibleMoves[x][y] += fnum;
+	possibleMoves[x][y] += fnum + 1;
 
 	cache.update(x, y, color);
 
@@ -127,7 +127,7 @@ Status Chessboard::unMakeMove() {
 	updiagonal_piece_count[color][x + y - 1]--;
 	downdiagonal_piece_count[color][y - x + GRID_NUM]--;
 
-	possibleMoves[x][y] -= fnum;
+	possibleMoves[x][y] -= fnum + 1;
 	for (int i = 0; i < fnum; i++)
 			if (inChessboard(x + fx[i], y + fy[i]))
 				possibleMoves[x + fx[i]][y + fy[i]]--;

@@ -21,17 +21,16 @@ Robot::Robot() {
 	black_p[9] = pattern(".011010", 6);
 	black_p[10] = pattern(".010110", 6);
 	black_p[11] = pattern(".001100", 6);
-	/*
-	black_p[11] = pattern(".11100", 5);
+	
+	/*black_p[11] = pattern(".11100", 5);
 	black_p[12] = pattern(".00111", 5);
 	black_p[13] = pattern(".01101", 5);
 	black_p[14] = pattern(".01011", 5);
 	black_p[15] = pattern(".11010", 5);
 	black_p[16] = pattern(".10110", 5);
 	black_p[17] = pattern(".01110", 5);
-	black_p[18] = pattern(".001100", 6);
-	*/
-
+	black_p[18] = pattern(".001100", 6);*/
+	
 	white_p[0] = pattern(".22222", 5);
 	white_p[1] = pattern(".022220", 6);
 	white_p[2] = pattern(".22220", 5);
@@ -44,16 +43,16 @@ Robot::Robot() {
 	white_p[9] = pattern(".022020", 6);
 	white_p[10] = pattern(".020220", 6);
 	white_p[11] = pattern(".002200", 6);
-	/*
-	white_p[11] = pattern(".22200", 5);
+	
+	/*white_p[11] = pattern(".22200", 5);
 	white_p[12] = pattern(".00222", 5);
 	white_p[13] = pattern(".02202", 5);
 	white_p[14] = pattern(".02022", 5);
 	white_p[15] = pattern(".22020", 5);
 	white_p[16] = pattern(".20220", 5);
 	white_p[17] = pattern(".02220", 5);
-	white_p[18] = pattern(".002200", 6);
-	*/
+	white_p[18] = pattern(".002200", 6);*/
+	
 
 	// 模式估值
 	cost_self[0] = 300000; // 五
@@ -149,7 +148,7 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 	vector<Move> moves;
 	for (int i = 1; i <= GRID_NUM; i++)
 		for (int j = GRID_NUM; j >= 1; j--)
-			if (chessboard.possibleMoves[i][j] > 0 && chessboard.possibleMoves[i][j] < chessboard.fnum)
+			if (chessboard.possibleMoves[i][j] > 0 && chessboard.possibleMoves[i][j] <= chessboard.fnum)
 				moves.push_back(Move(i, j));
 
 	vector<int> evals;

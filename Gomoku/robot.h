@@ -65,12 +65,12 @@ private:
 	Chess chess;					// 所执棋色
 	pattern black_p[20];
 	pattern white_p[20];
-	std::regex black_regex[100];	// 辅助数组
-	std::regex white_regex[100];	// 辅助数组
 	int cost_self[20];				// 辅助数组
 	int cost_opp[20];				// 辅助数组
 	int bar[16] = {12, 12, 11, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int pat_num = 12;
+	// int bar[16] = {19, 19, 18, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	// int pat_num = 19;
 	Timer timer;					// 计时器实例
 };
 
