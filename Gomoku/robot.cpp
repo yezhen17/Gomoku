@@ -657,7 +657,9 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 		b = MAX_VALUE;
 		max_value = MIN_VALUE;
 		flag = true;		// 标记重置
+		int i = 0, max_idx = 0;
 		for (auto m : moves) {
+			i++;
 			// 层数时间检查
 			if ((depth > MAX_DEPTH) || (depth > MIN_DEPTH && !timer.check()))  {
 				flag = false;
@@ -681,8 +683,16 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 			if (max_value > a)
 				a = max_value;
 		}
-		if (flag)
+		if (flag) {
 			result = move;
+			max_idx = i - 1;
+		}
+		// 优化初试顺序
+		for (int i = max_idx - 1; i >= 0; i--) {
+			Move tmp = moves[i + 1];
+			moves[i + 1] = moves[i];
+			moves[i] = tmp;
+		}
 	}
 	return result;
 }
