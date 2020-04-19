@@ -88,16 +88,16 @@ private:
 	char up_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 左下-右上方向对角线棋子
 	char down_diagonals[EFFECTIVE_DIAGONAL_NUM][GRID_NUM + 3];	// 辅助数组 右下-左上方向对角线棋子
 	
-	int horizontal_piece_count[2][GRID_NUM + 1];
-	int vertical_piece_count[2][GRID_NUM + 1];
-	int updiagonal_piece_count[2][EFFECTIVE_DIAGONAL_NUM + 1];
-	int downdiagonal_piece_count[2][EFFECTIVE_DIAGONAL_NUM + 1];
+	int horizontal_piece_count[2][GRID_NUM + 1];  // 辅助数组 水平行黑白子个数
+	int vertical_piece_count[2][GRID_NUM + 1];  // 辅助数组 竖直列棋子黑白子个数
+	int updiagonal_piece_count[2][EFFECTIVE_DIAGONAL_NUM + 1];  // 辅助数组 左下-右上方向对角线黑白子个数
+	int downdiagonal_piece_count[2][EFFECTIVE_DIAGONAL_NUM + 1];  // 辅助数组右下-左上方向对角线黑白子个数
 
-	int fx[16] = {-1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, 0, 0, 2, 2, 2};
-	int fy[16] = {-1, 0, 1, -1, 1, -1, 0, 1, -2, 0, 2, -2, 2, -2, 0, 2};
-	int fnum = 16;
+	int fx[16] = {-1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, 0, 0, 2, 2, 2};  // 两格米字型范围x偏移
+	int fy[16] = {-1, 0, 1, -1, 1, -1, 0, 1, -2, 0, 2, -2, 2, -2, 0, 2};  // 两格米字型范围y偏移
+	int fnum = 16;  // 两格米字型共16个位置
 
-	Cache cache;
+	Cache cache;  // 缓存
 
 	// 检验招法是否在棋盘上
 	inline bool inChessboard(const int x, const int y) {

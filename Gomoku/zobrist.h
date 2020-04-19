@@ -8,17 +8,17 @@
 
 typedef long long u64;
 const int TABLE_SIZE_MASK = (1 << 20) - 1;  // table大小为2的倍数，因为&运算比除法快
-const int VAL_UNKNOWN = 1;
+const int VAL_UNKNOWN = 1;  // 由于评估函数不会输出1，就选择1作为未定义的值
 const int GRID_NUM_ = 15;
 
 /*
 Hash table
 */
 struct BoardHash {
-	u64 key;
-	int depth;
-	int flags;
-	int val;
+	u64 key;  // 局面对应的键
+	int depth;  //  深度
+	int flags;  // alpha/beta/准确值
+	int val;  // 局面估值
 };
 
 /*

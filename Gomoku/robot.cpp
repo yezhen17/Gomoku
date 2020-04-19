@@ -3,7 +3,6 @@
 using namespace std;
 
 
-
 /***************
 * [函数] 构造函数
 ***************/
@@ -195,6 +194,9 @@ vector<Move> Robot::createMoves(Chessboard& chessboard) {
 	return moves;
 }
 
+/***************
+* [函数] 单点启发式估值函数
+***************/
 int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 {
 	if (chessboard.getCurrentStep() < 6) {
@@ -520,6 +522,8 @@ int Robot::evaluatePoint(Chessboard& chessboard, Move mv, Chess cur, int min)
 		else if (seq_gap2_same > 0 && !left_block_second[i] && !right_block_second[i]) ++weak; // 己方活2
 		
 	}
+
+	// 返回相应的估值
 	if (priority[1]) return FIVE_OPPO;
 	if (priority[2]) return ALIVE_FOUR_OURS;
 	if (d4 > 1) return DOUBLE_FOUR_OURS;
@@ -600,11 +604,12 @@ int Robot::evaluate(Chessboard& chessboard) {
 		return (white_value - black_value);
 	}
 }
-//由于五子棋搜索分支庞大，通常无法直接搜索到胜负终局，当搜索到一定深度时需要根据局面返回搜索结果。
-//参考资料：
-//张明亮, 吴俊, 李凡长. 五子棋机器博弈系统评估函数的设计[J]. 计算机应用, 2012, 32(07):1969-1972.
-//裴博文. 五子棋人工智能权重估值算法[J]. 电脑编程技巧与维护, 2008(6):69-75.
-//https://www.cnblogs.com/maxuewei2/p/4825520.html
+// 由于五子棋搜索分支庞大，通常无法直接搜索到胜负终局，当搜索到一定深度时需要根据局面返回搜索结果。
+// 参考资料：
+// 张明亮, 吴俊, 李凡长. 五子棋机器博弈系统评估函数的设计[J]. 计算机应用, 2012, 32(07):1969-1972.
+// 裴博文. 五子棋人工智能权重估值算法[J]. 电脑编程技巧与维护, 2008(6):69-75.
+// https://www.cnblogs.com/maxuewei2/p/4825520.html
+// https://github.com/lihongxun945/gobang
 
 /***************
 * [函数] 搜索算法
@@ -691,7 +696,7 @@ Move Robot::searchMove(Chessboard& chessboard)  {
 int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 	int val;
 	Cache& cache = chessboard.cache;
-	if ((val = cache.getCache(depth, a, b)) != VAL_UNKNOWN) {
+	if ((val = cache.getCache(depth, a, b)) != VAL_UNKNOWN) { // 哈希表中有该局面的值
 		return val;
 	}
 	if (depth == 0) {
@@ -715,15 +720,15 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 		if (tmp_value > max_value)
 			max_value = tmp_value;
 		if (max_value >= b) {
-			cache.setCache(max_value, hashfBETA, depth);
+			cache.setCache(max_value, hashfBETA, depth); // 当前局面分值大于等于max_value
 			return max_value;
 		}
 		if (max_value > a) {
-			hashf = hashfEXACT;
+			hashf = hashfEXACT; 
 			a = max_value;
 		}
 	}
-	cache.setCache(max_value, hashf, depth);
+	cache.setCache(a, hashf, depth);  // 如果没有值大于alpha，那么哈希表里存储的是当前局面的上界
 	return max_value;
 }
 
@@ -736,7 +741,7 @@ int Robot::maxValue(Chessboard& chessboard, int depth, int a, int b) {
 int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
 	int val;
 	Cache& cache = chessboard.cache;
-	if ((val = cache.getCache(depth, a, b)) != VAL_UNKNOWN) {
+	if ((val = cache.getCache(depth, a, b)) != VAL_UNKNOWN) {  // 哈希表中有该局面的值
 		return val;
 	}
 	if (depth == 0) {
@@ -760,7 +765,7 @@ int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
 		if (tmp_value < min_value)
 			min_value = tmp_value;
 		if (min_value <= a) {
-			cache.setCache(min_value, hashfALPHA, depth);
+			cache.setCache(min_value, hashfALPHA, depth); // 当前局面分值小于等于min_value
 			return min_value;
 		}
 		if (min_value < b) {
@@ -768,6 +773,6 @@ int Robot::minValue(Chessboard& chessboard, int depth, int a, int b) {
 			b = min_value;
 		}
 	}
-	cache.setCache(min_value, hashf, depth);
+	cache.setCache(b, hashf, depth);  // 如果没有值小于beta，那么哈希表里存储的是当前局面的下界
 	return min_value;
 }

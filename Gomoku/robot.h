@@ -26,9 +26,9 @@ int KMP_matcher(char* P, int *pi, char* T, int m, int n);
 * [结构] 定义
 ***************/
 struct pattern {
-	char P[7];
-	int m;
-	int pi[8];
+	char P[7];  // 模式字符串
+	int m;  // 长度
+	int pi[8];  // 前缀数组
 	pattern() {}
 	pattern(pattern& pattern_) { memcpy(P, pattern_.P, 7); m = pattern_.m; memcpy(pi, pattern_.pi, 8); }
 	pattern(const char *P_, int m_) { memcpy(P, P_, 7); m = m_; compute_prefix(P, pi, m); }
@@ -63,12 +63,12 @@ private:
 	int maxValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MAX
 	int minValue(Chessboard& chessboard, int depth, int a, int b);	// minimax对抗搜索 - MIN
 	Chess chess;					// 所执棋色
-	pattern black_p[20];
-	pattern white_p[20];
-	int cost_self[20];				// 辅助数组
-	int cost_opp[20];				// 辅助数组
-	int bar[16] = {12, 12, 11, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int pat_num = 12;
+	pattern black_p[20];  // 所有黑色模式
+	pattern white_p[20];  // 所有白色模式
+	int cost_self[20];	// 己方模式价值数组
+	int cost_opp[20];	 // 对方模式价值数组
+	int bar[16] = {12, 12, 11, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};  // 每行/列/对角线一色棋子数量对应的起始模式编号
+	int pat_num = 12;  // 模式串数量
 	// int bar[16] = {19, 19, 18, 7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	// int pat_num = 19;
 	Timer timer;					// 计时器实例

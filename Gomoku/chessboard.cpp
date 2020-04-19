@@ -61,6 +61,7 @@ Status Chessboard::makeMove(const int x, const int y) {
 	Chess cur = getCurrentChess();
 	chessboard[x][y] = cur;					// 更新棋盘
 	chessRecord.push_back(Move(x, y));		// 更新记录
+
 	// 更新辅助数组
 	char c = chess2char(cur);
 	horizontals[x - 1][y] = c;
@@ -106,6 +107,7 @@ Status Chessboard::unMakeMove() {
 	int x = move.x, y = move.y;
 	chessboard[x][y] = Chess::BLANK;	// 更新棋盘
 	chessRecord.pop_back();				// 更新记录
+
 	// 更新辅助数组
 	horizontals[x - 1][y] = '0';
 	verticals[y - 1][x] = '0';
