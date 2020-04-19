@@ -27,28 +27,9 @@ void Game::start() {
 	Chess chess = Chess::BLANK;
 	Operation operation = Operation::NEWBLACK;
 	Move move = Move(0, 0);
-	double TIME = -1;
+	double TIME = 0;
+	update();			// 更新屏幕
 	while (true) {
-		// *** 打印游戏信息 ***
-		if (!DEBUG_MODE) system("cls");					// 清空屏幕			
-		describe();						// 打印帮助信息
-		printChessboard();				// 打印棋盘
-		printChessRecord(-2);			// 打印棋局记录
-		printChessRecord(-1);			// 打印棋局记录
-		if (stage == Stage::GAMEOVER) {	// 打印获胜信息
-			printf_s("%-12s", "【游戏结束】 ");
-			if (winner == Chess::BLACK)
-				printf_s("○ 获胜！\n");
-			else if (winner == Chess::WHITE)
-				printf_s("● 获胜！\n");
-			else
-				printf_s("和棋！\n");
-		}
-		if (TIME >= 0) {
-			printf_s("[√] AI决策用时：%.3lf s.\n", TIME);
-			TIME = -1;
-		}
-		printf_s("\n");
 		// *** 用户进行决策 ***
 		chess = getCurrentChess();
 		while (true) {
@@ -64,6 +45,8 @@ void Game::start() {
 				sente = Role::ROBOT;		// 更新先行方
 				stage = Stage::UNDERWAY;	// 更新游戏阶段
 				initMove();					// 重置棋盘
+				// update();				// 可不更新屏幕
+				// 等待 robot 决策后更新
 				break;
 			}
 			// <newwhite>
@@ -71,6 +54,7 @@ void Game::start() {
 				sente = Role::PLAYER;		// 更新先行方
 				stage = Stage::UNDERWAY;	// 更新游戏阶段
 				initMove();					// 重置棋盘
+				update();					// 更新屏幕
 				break;
 			}
 			// <move>
@@ -103,9 +87,11 @@ void Game::start() {
 						stage = Stage::GAMEOVER;
 					}
 					break;
+					// 更新屏幕
+					update();
 				}
 				if (stage == Stage::GAMEOVER) {
-					printf_s("[×] 对局已结束，请键入<newblack>/<newwhite>以开始新对局。\n");
+					printf_s("[√] 游戏已结束，请键入<newblack>/<newwhite>以开始新对局，或键入<withdraw>以悔棋。\n");
 					continue;
 				}
 				if (stage == Stage::DEFAULT) {
@@ -120,6 +106,7 @@ void Game::start() {
 					status = unMakeMove();
 					status = unMakeMove();
 					stage = Stage::UNDERWAY;	// 游戏继续
+					update();					// 更新屏幕
 					break;
 				}
 				if (stage == Stage::DEFAULT) {
@@ -135,7 +122,6 @@ void Game::start() {
 					TIME = TIMER.time();
 					printf_s("[√] AI建议：(%X, %X)\n", move.x, move.y);
 					printf_s("[√] AI决策用时：%.3lf s.\n", TIME);
-					TIME = -1;
 					continue;
 				}
 				if (stage == Stage::GAMEOVER) {
@@ -211,9 +197,38 @@ void Game::start() {
 			winner = Chess::BLANK;
 			stage = Stage::GAMEOVER;
 		}
+		// 更新屏幕
+		update();
+		printf_s("[√] AI决策用时：%.3lf s.\n", TIME);
+
 	}
 	return;
 }
+
+/***************
+* [函数] 更新函数 --- 更新
+***************/
+void Game::update() {
+	// *** 打印游戏信息 ***
+	if (!DEBUG_MODE) system("cls");	// 清空屏幕			
+	describe();						// 打印帮助信息
+	printChessboard();				// 打印棋盘
+	printChessRecord(-2);			// 打印棋局记录
+	printChessRecord(-1);			// 打印棋局记录
+	if (stage == Stage::GAMEOVER) {	// 打印获胜信息
+		printf_s("%-12s", "【游戏结束】 ");
+		if (winner == Chess::BLACK)
+			printf_s("○ 获胜！\n");
+		else if (winner == Chess::WHITE)
+			printf_s("● 获胜！\n");
+		else
+			printf_s("和棋！\n");
+	}
+	printf_s("\n");
+	return;
+}
+
+
 
 /***************
 * [函数] 描述函数 --- 输出帮助信息

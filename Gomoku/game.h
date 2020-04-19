@@ -29,6 +29,7 @@ public:
 	Game();					// 构造函数
 	~Game();				// 析构函数
 	void start();			// 运行函数 --- 程序主循环
+	void update();			// 更新函数 --- 更新屏幕
 	void describe();		// 描述函数 --- 输出帮助信息
 private:
 	Role sente;				// 先行方
